@@ -24,8 +24,6 @@ locals {
     project_id            = local.om_info.project_id,
     public_key            = local.om_public_key,
     private_key           = local.om_private_key,
-    om_backup_version     = var.om_backup_version,
-    om_monitoring_version = var.om_monitoring_version,
     user                  = local.backing_db_credentials.name,
     pwd                   = local.backing_db_credentials.pwd
   }

@@ -28,8 +28,6 @@ resource "local_file" "vars_json" {
     subnet_id              = local.subnet_id
     "BackingDB"            = local.om_info
     om_automation_version  = var.om_automation_version,
-    om_backup_version      = var.om_backup_version,
-    om_monitoring_version  = var.om_monitoring_version,
     om_metastore_hosts     = local.metastore_hosts
   })
 }

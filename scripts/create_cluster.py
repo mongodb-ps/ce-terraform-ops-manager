@@ -12,8 +12,6 @@ public_key = params["public_key"]
 private_key = params["private_key"]
 rs = params["rs"]
 hosts = params["hosts"]
-om_backup_version = params["om_backup_version"]
-om_monitoring_version = params["om_monitoring_version"]
 user = params["user"]
 pwd = params["pwd"]
 
@@ -100,23 +98,7 @@ auto_config["backupVersions"].extend([
         "hostname": f"{host}",
         "logPath": "/var/log/mongodb-mms-automation/backup-agent.log",
         "logRotate": {"sizeThresholdMB": 1000.0, "timeThresholdHrs": 24},
-        "name": f"{om_backup_version}",
-        "urls": {
-            "linux": {
-                "aarch64_amzn2": f"http://ec2-13-51-86-127.eu-north-1.compute.amazonaws.com:8080/download/agent/backup/mongodb-mms-backup-agent-{om_backup_version}.amzn2_aarch64.tar.gz",
-                "default": f"http://ec2-13-51-86-127.eu-north-1.compute.amazonaws.com:8080/download/agent/backup/mongodb-mms-backup-agent-{om_backup_version}.linux_x86_64.tar.gz",
-                "rhel7": f"http://ec2-13-51-86-127.eu-north-1.compute.amazonaws.com:8080/download/agent/backup/mongodb-mms-backup-agent-{om_backup_version}.rhel7_x86_64.tar.gz",
-                "rhel8": f"http://ec2-13-51-86-127.eu-north-1.compute.amazonaws.com:8080/download/agent/backup/mongodb-mms-backup-agent-{om_backup_version}.rhel8_x86_64.tar.gz",
-                "rhel9": f"http://ec2-13-51-86-127.eu-north-1.compute.amazonaws.com:8080/download/agent/backup/mongodb-mms-backup-agent-{om_backup_version}.rhel9_x86_64.tar.gz",
-                "s390x_rhel7": f"http://ec2-13-51-86-127.eu-north-1.compute.amazonaws.com:8080/download/agent/backup/mongodb-mms-backup-agent-{om_backup_version}.rhel7_s390x.tar.gz",
-            },
-            "osx": {
-                "default": f"http://ec2-13-51-86-127.eu-north-1.compute.amazonaws.com:8080/download/agent/backup/mongodb-mms-backup-agent-{om_backup_version}.osx_x86_64.tar.gz"
-            },
-            "windows": {
-                "default": f"http://ec2-13-51-86-127.eu-north-1.compute.amazonaws.com:8080/download/agent/backup/mongodb-mms-backup-agent-{om_backup_version}.windows_x86_64.msi"
-            },
-        },
+        "name": "backup agent"
     }
     for host in hosts
 ])
@@ -129,23 +111,7 @@ auto_config["monitoringVersions"].extend([
         "hostname": f"{host}",
         "logPath": "/var/log/mongodb-mms-automation/monitoring-agent.log",
         "logRotate": {"sizeThresholdMB": 1000.0, "timeThresholdHrs": 24},
-        "name": f"{om_monitoring_version}",
-        "urls": {
-            "linux": {
-                "aarch64_amzn2": f"http://ec2-13-51-86-127.eu-north-1.compute.amazonaws.com:8080/download/agent/monitoring/mongodb-mms-monitoring-agent-{om_monitoring_version}.amzn2_aarch64.tar.gz",
-                "default": f"http://ec2-13-51-86-127.eu-north-1.compute.amazonaws.com:8080/download/agent/monitoring/mongodb-mms-monitoring-agent-{om_monitoring_version}.linux_x86_64.tar.gz",
-                "rhel7": f"http://ec2-13-51-86-127.eu-north-1.compute.amazonaws.com:8080/download/agent/monitoring/mongodb-mms-monitoring-agent-{om_monitoring_version}.rhel7_x86_64.tar.gz",
-                "rhel8": f"http://ec2-13-51-86-127.eu-north-1.compute.amazonaws.com:8080/download/agent/monitoring/mongodb-mms-monitoring-agent-{om_monitoring_version}.rhel8_x86_64.tar.gz",
-                "rhel9": f"http://ec2-13-51-86-127.eu-north-1.compute.amazonaws.com:8080/download/agent/monitoring/mongodb-mms-monitoring-agent-{om_monitoring_version}.rhel9_x86_64.tar.gz",
-                "s390x_rhel7": f"http://ec2-13-51-86-127.eu-north-1.compute.amazonaws.com:8080/download/agent/monitoring/mongodb-mms-monitoring-agent-{om_monitoring_version}.rhel7_s390x.tar.gz",
-            },
-            "osx": {
-                "default": f"http://ec2-13-51-86-127.eu-north-1.compute.amazonaws.com:8080/download/agent/monitoring/mongodb-mms-monitoring-agent-{om_monitoring_version}.osx_x86_64.tar.gz"
-            },
-            "windows": {
-                "default": f"http://ec2-13-51-86-127.eu-north-1.compute.amazonaws.com:8080/download/agent/monitoring/mongodb-mms-monitoring-agent-{om_monitoring_version}.windows_x86_64.msi"
-            },
-        },
+        "name": "monitoring agent"
     }
     for host in hosts
 ])
