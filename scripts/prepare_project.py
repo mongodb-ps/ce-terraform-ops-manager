@@ -47,25 +47,23 @@ if not agent_key:
     if os.path.exists(output_file):
         with open(output_file, "r", encoding="utf-8") as f:
             data = json.load(f)
-            
-    if project_name in data:
-        agent_key = data[project_name]["agent_api_key"]
-# else:
-#     agent_key = project.get("agentApiKey")
-    # # Create agent API key for the project.
-    # agent_url = f"{url_prefix}/groups/{project_id}/agentapikeys"
-    # def create_agent_key():
-    #     return api_post(agent_url, public_key, private_key, {
-    #         "desc": "API key for automation agents."
-    #     })
-    # agent_key_response = create_agent_key()
-    # acc_url = f"{url_prefix}/admin/accessList"
-    # if agent_key_response.status_code == 403:
-    #     raise PermissionError("Please add your IP to Global Access List and wait for 5 minutes.")
-    # agent_key = agent_key_response.json().get("key")
+            if project_name in data:
+                agent_key = data[project_name]["agent_api_key"]
+    else:
+        # Create agent API key for the project.
+        agent_url = f"{url_prefix}/groups/{project_id}/agentapikeys"
+        agent_key_response = api_post(agent_url, public_key, private_key, {
+            "desc": "API key for automation agents."
+        })
+        agent_key = agent_key_response.json().get("key")
+
+automation_url = f"{url_prefix}/softwareComponents/versions"
+automation_response = api_get(automation_url, public_key, private_key, {})
+agent_version = automation_response.json().get("automationVersion")
 
 print(json.dumps({
     "org_id": org_id,
     "project_id": project_id,
-    "agent_api_key": agent_key
+    "agent_api_key": agent_key,
+    "agent_version": agent_version
 }))

@@ -11,6 +11,8 @@ locals {
   ami_id                 = local.stage_1_output.ami_id
   key_name               = local.stage_1_output.key_name
   snapshot_size          = local.stage_1_output.snapshot_size
+  metastore_version      = local.stage_1_output.metastore_version
+  metastore_fcv          = local.stage_1_output.metastore_fcv
 
   om_admin       = jsondecode(file("${path.root}/../om-admin.json"))
   om_public_key  = local.om_admin.programmaticApiKey.publicKey
@@ -27,7 +29,6 @@ resource "local_file" "vars_json" {
     vpc_id                 = local.vpc_id
     subnet_id              = local.subnet_id
     "BackingDB"            = local.om_info
-    om_automation_version  = var.om_automation_version,
     om_metastore_hosts     = local.metastore_hosts
   })
 }
@@ -39,4 +40,5 @@ resource "null_resource" "on_destroy" {
       rm -f ${path.root}/../stage-2-output.json ${path.root}/../om_admin.json
     EOT
   }
+  # depends_on = [ null_resource.destroy_project ]
 }
