@@ -48,3 +48,53 @@ resource "null_resource" "create_metastore_rs" {
     command = "python3 ${path.root}/../scripts/create_cluster.py "
   }
 }
+
+resource "null_resource" "enable_backup_daemon" {
+  provisioner "local-exec" {
+    environment = {
+      OM_URL      = local.om_access_url
+      HEADDB      = "/data/head/" # Must ends with /
+      PUBLIC_KEY  = local.om_public_key
+      PRIVATE_KEY = local.om_private_key
+    }
+    command = "python3 ${path.root}/../scripts/enable_daemon.py"
+  }
+}
+
+resource "null_resource" "enable_oplog_store" {
+  triggers = {
+    always_run = timestamp()
+  }
+  provisioner "local-exec" {
+    environment = {
+      OM_URL          = local.om_access_url
+      PUBLIC_KEY      = local.om_public_key
+      PRIVATE_KEY     = local.om_private_key
+      OPLOG_HOSTS_STR = join(",", local.metastore_hosts)
+      OPLOG_USER      = local.backing_db_credentials.name
+      OPLOG_PWD       = local.backing_db_credentials.pwd
+      OPLOG_STORE_ID  = "OplogStore1"
+      STORE_TYPE      = "oplog"
+    }
+    command = "python3 ${path.root}/../scripts/configure_backup.py"
+  }
+}
+
+resource "null_resource" "enable_snapshot_store" {
+  triggers = {
+    always_run = timestamp()
+  }
+  provisioner "local-exec" {
+    environment = {
+      OM_URL          = local.om_access_url
+      PUBLIC_KEY      = local.om_public_key
+      PRIVATE_KEY     = local.om_private_key
+      OPLOG_HOSTS_STR = join(",", local.metastore_hosts)
+      OPLOG_USER      = local.backing_db_credentials.name
+      OPLOG_PWD       = local.backing_db_credentials.pwd
+      OPLOG_STORE_ID  = "SnapshotStore1"
+      STORE_TYPE      = "snapshot"
+    }
+    command = "python3 ${path.root}/../scripts/configure_backup.py"
+  }
+}
