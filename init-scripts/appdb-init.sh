@@ -1,0 +1,28 @@
+#!/bin/bash
+# Install and init MongoDB
+sudo apt-get install -y gnupg curl
+curl -fsSL https://pgp.mongodb.com/server-8.0.asc | \
+   sudo gpg -o /usr/share/keyrings/mongodb-server-8.0.gpg \
+   --dearmor
+echo "deb [ arch=amd64,arm64 signed-by=/usr/share/keyrings/mongodb-server-8.0.gpg ] https://repo.mongodb.com/apt/ubuntu jammy/mongodb-enterprise/8.2 multiverse" | sudo tee /etc/apt/sources.list.d/mongodb-enterprise-8.2.list
+sudo apt-get update
+sudo apt-get install mongodb-enterprise -y
+# Configure MongoDB
+echo 'storage:
+  dbPath: /var/lib/mongodb
+systemLog:
+  destination: file
+  logAppend: true
+  path: /var/log/mongodb/mongod.log
+net:
+  port: 27017
+  bindIp: 0.0.0.0
+processManagement:
+  timeZoneInfo: /usr/share/zoneinfo
+security:
+  authorization: enabled' | sudo tee /etc/mongod.conf
+sudo systemctl start mongod
+sleep 5
+# Create admin user
+mongosh --eval 'db.getSiblingDB("admin").createUser({user:"${OM_APPDB_USER}", pwd:"${OM_APPDB_PASSWORD}", roles:[{role:"root", db:"admin"}]})'
+sudo systemctl enable mongod
