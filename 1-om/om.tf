@@ -22,7 +22,7 @@ locals {
 module "om_app" {
   source                 = "../modules/ec2"
   instance_name_prefix   = "om"
-  instance_type          = "t3.large"
+  instance_type          = "t3.xlarge"
   vpc_id                 = var.vpc_id
   subnet_id              = var.subnet_id
   ami_id                 = var.ami_id

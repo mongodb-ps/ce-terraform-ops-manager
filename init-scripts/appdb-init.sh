@@ -26,3 +26,8 @@ sleep 5
 # Create admin user
 mongosh --eval 'db.getSiblingDB("admin").createUser({user:"${OM_APPDB_USER}", pwd:"${OM_APPDB_PASSWORD}", roles:[{role:"root", db:"admin"}]})'
 sudo systemctl enable mongod
+
+# Download mongosh
+curl -OL https://downloads.mongodb.com/compass/mongodb-mongosh_2.5.10_amd64.deb
+sudo dpkg -i mongodb-mongosh_2.5.10_amd64.deb
+rm mongodb-mongosh_2.5.10_amd64.deb

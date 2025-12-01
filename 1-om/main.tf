@@ -22,7 +22,7 @@ resource "null_resource" "on_destroy" {
   provisioner "local-exec" {
     when    = destroy
     command = <<EOT
-      rm -f ${path.root}/../stage-1-output.json ${path.root}/../om_lead_admin.json
+      rm -f ${path.root}/../stage-1-output.json ${path.root}/../om-admin.json
     EOT
   }
 }
