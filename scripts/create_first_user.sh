@@ -11,7 +11,7 @@ http_code=$(curl --digest \
      --fail \
      --header "Accept: application/json" \
      --header "Content-Type: application/json" \
-     --request POST "http://${host}:8080/api/public/v1.0/unauth/users?pretty=true&accessList=${my_ip}" \
+     --request POST "http://${host}:8080/api/public/v1.0/unauth/users?accessList=${my_ip}&whitelist=${my_ip}" \
      --data '
        {
          "username": "'${email}'",

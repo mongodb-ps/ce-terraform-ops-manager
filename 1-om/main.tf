@@ -7,17 +7,17 @@ locals {
 resource "local_file" "vars_json" {
   filename = "${path.root}/../stage-1-output.json"
   content = jsonencode({
-    first_user      = var.first_user
-    appdb_user      = var.backing_db_credentials
-    tags            = local.tags
-    aws_region      = var.aws_region
-    vpc_id          = var.vpc_id
-    subnet_id       = var.subnet_id
-    om_download_url = var.om_download_url
-    om_access_url   = "http://${module.om_app.instance_public_dns[0]}:8080/"
-    ami_id          = var.ami_id
-    key_name        = var.key_name
-    snapshot_size   = var.snapshot_size
+    first_user             = var.first_user
+    backing_db_credentials = var.backing_db_credentials
+    tags                   = local.tags
+    aws_region             = var.aws_region
+    vpc_id                 = var.vpc_id
+    subnet_id              = var.subnet_id
+    om_download_url        = var.om_download_url
+    om_access_url          = "http://${module.om_app.instance_public_dns[0]}:8080/"
+    ami_id                 = var.ami_id
+    key_name               = var.key_name
+    snapshot_size          = var.snapshot_size
   })
 }
 
