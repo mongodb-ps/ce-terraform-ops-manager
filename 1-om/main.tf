@@ -18,6 +18,8 @@ resource "local_file" "vars_json" {
     ami_id                 = var.ami_id
     key_name               = var.key_name
     snapshot_size          = var.snapshot_size
+    metastore_version      = var.metastore_version
+    metastore_fcv          = "${split(".", var.metastore_version)[0]}.0"
   })
 }
 

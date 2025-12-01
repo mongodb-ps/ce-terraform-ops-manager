@@ -18,7 +18,7 @@ variable "tags" {
   type        = map(string)
   default = {
     "owner" : "Joe Doe", # replace with your name
-    "expire-on" : "", # leave empty for 3 days from creation
+    "expire-on" : "",    # leave empty for 3 days from creation
     "project-id" : "internal"
   }
 }
@@ -80,4 +80,10 @@ variable "snapshot_size" {
   description = "Size of root device."
   type        = number
   default     = 50
+}
+
+variable "metastore_version" {
+  description = "Metadata store MongoDB version."
+  type        = string
+  default     = "8.0.16-ent"
 }
