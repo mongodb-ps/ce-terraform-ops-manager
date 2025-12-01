@@ -75,3 +75,9 @@ variable "om_size" {
   type        = number
   default     = 50
 }
+
+variable "snapshot_size" {
+  description = "Size of root device."
+  type        = number
+  default     = 50
+}
