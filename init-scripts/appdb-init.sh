@@ -41,3 +41,4 @@ sudo systemctl enable mongod
 curl -OL https://downloads.mongodb.com/compass/mongodb-mongosh_2.5.10_amd64.deb
 sudo dpkg -i mongodb-mongosh_2.5.10_amd64.deb
 rm mongodb-mongosh_2.5.10_amd64.deb
+sudo apt-get install -y libcurl4 libgssapi-krb5-2 libldap-2.5-0 libwrap0 libsasl2-2 libsasl2-modules libsasl2-modules-gssapi-mit snmp openssl liblzma5

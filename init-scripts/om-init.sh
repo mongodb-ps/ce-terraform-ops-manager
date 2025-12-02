@@ -36,3 +36,4 @@ sudo systemctl enable mongodb-mms
 sudo systemctl start mongodb-mms
 sudo mkdir -p /data/head
 sudo chown -R mongodb-mms:mongodb-mms /data/head
+sudo apt-get install -y libcurl4 libgssapi-krb5-2 libldap-2.5-0 libwrap0 libsasl2-2 libsasl2-modules libsasl2-modules-gssapi-mit snmp openssl liblzma5
