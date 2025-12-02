@@ -47,6 +47,7 @@ resource "null_resource" "create_metastore_rs" {
     }
     command = "python3 ${path.root}/../scripts/create_cluster.py "
   }
+  depends_on = [ module.om_metastore ]
 }
 
 resource "null_resource" "enable_backup_daemon" {

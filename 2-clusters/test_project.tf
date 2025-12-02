@@ -5,7 +5,7 @@ data "external" "test_project" {
     url         = local.om_access_url
     public_key  = local.om_public_key
     private_key = local.om_private_key,
-    org_name    = "Ops Manager",
+    org_name    = "TestOrg",
     project_name = "TestProject",
   }
   depends_on = [ data.external.om_info ]

@@ -98,5 +98,10 @@ variable "om_tier" {
   description = "Instance type for Ops Manager."
   type        = string
   default     = "t3.xlarge"
-  
+}
+
+variable "appdb_version" {
+  description = "Version of the application database."
+  type        = string
+  default     = "8.0" # Will always use the latest 8.0.x enterprise.
 }

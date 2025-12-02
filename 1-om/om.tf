@@ -12,6 +12,7 @@ module "om_appdb" {
   init_script = templatefile("${path.root}/../init-scripts/appdb-init.sh", {
     OM_APPDB_USER     = var.backing_db_credentials.name,
     OM_APPDB_PASSWORD = var.backing_db_credentials.pwd
+    OM_APPDB_VERSION  = var.appdb_version
   })
 }
 
@@ -54,6 +55,9 @@ module "om_app" {
 }
 
 resource "null_resource" "om_ready" {
+  triggers = {
+    always_run = timestamp()
+  }
   provisioner "local-exec" {
     command = "bash ${path.root}/../scripts/wait-for-om.sh ${module.om_app.instance_public_dns[0]} 8080"
   }

@@ -1,6 +1,7 @@
 """Prepare backing replica set"""
 import json
 import os
+import sys
 from time import sleep
 from om_api import api_get, api_put
 
@@ -46,7 +47,7 @@ auto_config["auth"] = {
     ],
 }
 # Remove existing replica set config if exists
-all_rs = [rs_cfg for rs_cfg in auto_config["replicaSets"] if rs_cfg["_id"] != rs]
+all_rs = [rs_cfg for rs_cfg in auto_config.get("replicaSets", []) if rs_cfg["_id"] != rs]
 all_rs.append(
     {
         "_id": f"{rs}",
@@ -68,7 +69,7 @@ all_rs.append(
 )
 auto_config["replicaSets"] = all_rs
 # Remove existing processes for the replica set
-auto_config["processes"] = [proc for proc in auto_config["processes"] if not proc["name"].startswith(f"{rs}_")]
+auto_config["processes"] = [proc for proc in auto_config.get("processes", []) if not proc["name"].startswith(f"{rs}_")]
 auto_config["processes"].extend([
     {
         "args2_6": {
@@ -118,6 +119,9 @@ auto_config["monitoringVersions"].extend([
     for host in hosts
 ])
 response = api_put(api_url, public_key, private_key, auto_config)
+if response.status_code != 200:
+    print(f"Failed to update automation config: {response.text}")
+    sys.exit(1)
 
 # Wait for the automation config to be applied
 status_url = f"{om_url}api/public/v1.0/groups/{project_id}/automationStatus"
