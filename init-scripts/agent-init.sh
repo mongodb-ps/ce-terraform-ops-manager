@@ -8,3 +8,5 @@ sudo systemctl start mongodb-mms-automation-agent
 
 sudo mkdir -p /data
 sudo chown mongodb:mongodb /data
+
+sudo apt-get install -y libcurl4 libgssapi-krb5-2 libldap-2.5-0 libwrap0 libsasl2-2 libsasl2-modules libsasl2-modules-gssapi-mit snmp openssl liblzma5
