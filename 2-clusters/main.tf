@@ -29,6 +29,7 @@ resource "local_file" "vars_json" {
     vpc_id                 = local.vpc_id
     subnet_id              = local.subnet_id
     "BackingDB"            = local.om_info
+    "TestProject"               = local.test_info
     om_metastore_hosts     = local.metastore_hosts
   })
 }

@@ -78,6 +78,7 @@ resource "null_resource" "enable_oplog_store" {
     }
     command = "python3 ${path.root}/../scripts/configure_backup.py"
   }
+  depends_on = [ null_resource.create_metastore_rs ]
 }
 
 resource "null_resource" "enable_snapshot_store" {
@@ -97,4 +98,5 @@ resource "null_resource" "enable_snapshot_store" {
     }
     command = "python3 ${path.root}/../scripts/configure_backup.py"
   }
+  depends_on = [ null_resource.create_metastore_rs ]
 }

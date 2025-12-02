@@ -8,6 +8,7 @@ data "external" "test_project" {
     org_name    = "Ops Manager",
     project_name = "TestProject",
   }
+  depends_on = [ data.external.om_info ]
 }
 locals {
   test_info = data.external.test_project.result

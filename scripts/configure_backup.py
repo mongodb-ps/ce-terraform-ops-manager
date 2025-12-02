@@ -23,10 +23,10 @@ data = {
 }
 
 if res.status_code != 404:
-    print(f"Oplog store {store_id} already configured. Updating...")
+    print(f"{store_type.capitalize()} store {store_id} already configured. Updating...")
     res = api_put(f"{oplog_url}/{store_id}", public_key, private_key, data)
 else:
-    print(f"Creating oplog store {store_id}...")
+    print(f"Creating {store_type} store {store_id}...")
     res = api_post(oplog_url, public_key, private_key, data)
 
 if res.status_code >= 200 and res.status_code < 300:
