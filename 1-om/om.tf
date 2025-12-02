@@ -1,7 +1,7 @@
 module "om_appdb" {
   source                 = "../modules/ec2"
   instance_name_prefix   = "om-appdb"
-  instance_type          = "t3.medium"
+  instance_type          = var.appdb_tier
   vpc_id                 = var.vpc_id
   subnet_id              = var.subnet_id
   ami_id                 = var.ami_id
@@ -22,7 +22,7 @@ locals {
 module "om_app" {
   source                 = "../modules/ec2"
   instance_name_prefix   = "om"
-  instance_type          = "t3.xlarge"
+  instance_type          = var.om_tier
   vpc_id                 = var.vpc_id
   subnet_id              = var.subnet_id
   ami_id                 = var.ami_id

@@ -87,3 +87,16 @@ variable "metastore_version" {
   type        = string
   default     = "8.0.16-ent"
 }
+
+variable "appdb_tier" {
+  description = "Instance type for application database."
+  type        = string
+  default     = "t3.medium"
+}
+
+variable "om_tier" {
+  description = "Instance type for Ops Manager."
+  type        = string
+  default     = "t3.xlarge"
+  
+}

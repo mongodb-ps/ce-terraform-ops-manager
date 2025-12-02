@@ -2,7 +2,7 @@
 module "test_instances" {
   source                 = "../modules/ec2"
   instance_name_prefix   = "test-instance"
-  instance_type          = "t3.micro"
+  instance_type          = var.test_instance_tier
   vpc_id                 = local.vpc_id
   subnet_id              = local.subnet_id
   tags                   = local.tags
