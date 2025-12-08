@@ -35,10 +35,7 @@ sudo systemctl start mongod
 sleep 5
 # Create admin user
 mongosh --eval 'db.getSiblingDB("admin").createUser({user:"${OM_APPDB_USER}", pwd:"${OM_APPDB_PASSWORD}", roles:[{role:"root", db:"admin"}]})'
+mongosh --eval 'db.getSiblingDB("cloudconf").getCollection("config.globalWhitelists").insertOne({cidrBlock: "${WHITELIST_CIDR}",type: "GLOBAL_ROLE",description: "current",created: new Date(),updated: new Date()})' -u '${OM_APPDB_USER}' -p '${OM_APPDB_PASSWORD}' --host localhost --authenticationDatabase admin
 sudo systemctl enable mongod
 
-# Download mongosh
-curl -OL https://downloads.mongodb.com/compass/mongodb-mongosh_2.5.10_amd64.deb
-sudo dpkg -i mongodb-mongosh_2.5.10_amd64.deb
-rm mongodb-mongosh_2.5.10_amd64.deb
 sudo apt-get install -y libcurl4 libgssapi-krb5-2 libldap-2.5-0 libwrap0 libsasl2-2 libsasl2-modules libsasl2-modules-gssapi-mit snmp openssl liblzma5

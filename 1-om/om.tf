@@ -1,3 +1,6 @@
+data "http" "my_ip" {
+  url = "https://ifconfig.me/ip"
+}
 module "om_appdb" {
   source                 = "../modules/ec2"
   instance_name_prefix   = "om-appdb"
@@ -11,8 +14,9 @@ module "om_appdb" {
 
   init_script = templatefile("${path.root}/../init-scripts/appdb-init.sh", {
     OM_APPDB_USER     = var.backing_db_credentials.name,
-    OM_APPDB_PASSWORD = var.backing_db_credentials.pwd
-    OM_APPDB_VERSION  = var.appdb_version
+    OM_APPDB_PASSWORD = var.backing_db_credentials.pwd,
+    OM_APPDB_VERSION  = var.appdb_version,
+    WHITELIST_CIDR    = data.http.my_ip.body
   })
 }
 
