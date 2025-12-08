@@ -2,14 +2,14 @@
 module "test_instances" {
   source                 = "../modules/ec2"
   instance_name_prefix   = "test-instance"
-  instance_type          = var.test_instance_tier
+  instance_type          = local.test_instance_tier
   vpc_id                 = local.vpc_id
   subnet_id              = local.subnet_id
   tags                   = local.tags
-  instance_count         = var.num_test_instances
+  instance_count         = local.num_test_instances
   ami_id                 = local.ami_id
   key_name               = local.key_name
-  root_block_device_size = 20
+  root_block_device_size = local.test_instance_size
   init_script = templatefile("${path.root}/../init-scripts/agent-init.sh", {
     OM_URL                = local.om_access_url,
     OM_AUTOMATION_VERSION = "${local.test_info.agent_version}-1",

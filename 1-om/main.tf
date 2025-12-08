@@ -20,6 +20,10 @@ resource "local_file" "vars_json" {
     snapshot_size          = var.snapshot_size
     metastore_version      = var.metastore_version
     metastore_fcv          = "${split(".", var.metastore_version)[0]}.0"
+    num_test_instances     = var.num_test_instances
+    test_instance_tier     = var.test_instance_tier
+    test_instance_size     = var.test_instance_size
+    metastore_tier         = var.metastore_tier
   })
 }
 

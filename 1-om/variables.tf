@@ -65,19 +65,19 @@ variable "instance_name_prefix" {
 }
 
 variable "appdb_size" {
-  description = "Size of root device."
+  description = "Disk size (GB) of application database."
   type        = number
   default     = 50
 }
 
 variable "om_size" {
-  description = "Size of root device."
+  description = "Disk size (GB) of Ops Manager App."
   type        = number
   default     = 50
 }
 
 variable "snapshot_size" {
-  description = "Size of root device."
+  description = "Disk size (GB) of snapshot."
   type        = number
   default     = 50
 }
@@ -104,4 +104,28 @@ variable "appdb_version" {
   description = "Version of the application database."
   type        = string
   default     = "8.0" # Will always use the latest 8.0.x enterprise.
+}
+
+variable "num_test_instances" {
+  description = "Number of test instances to create"
+  type        = number
+  default     = 3
+}
+
+variable "test_instance_tier" {
+  description = "Instance tier for test instances"
+  type        = string
+  default     = "t3.small"
+}
+
+variable "test_instance_size" {
+  description = "Disk size (GB) of test instance."
+  type = number
+  default = 20
+}
+
+variable "metastore_tier" {
+  description = "Instance tier for metastore"
+  type        = string
+  default     = "t3.small"
 }

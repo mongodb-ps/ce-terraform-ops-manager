@@ -2,7 +2,7 @@
 module "om_metastore" {
   source                 = "../modules/ec2"
   instance_name_prefix   = "om-metastore"
-  instance_type          = var.metastore_tier
+  instance_type          = local.metastore_tier
   vpc_id                 = local.vpc_id
   subnet_id              = local.subnet_id
   tags                   = local.tags

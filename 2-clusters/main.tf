@@ -13,6 +13,10 @@ locals {
   snapshot_size          = local.stage_1_output.snapshot_size
   metastore_version      = local.stage_1_output.metastore_version
   metastore_fcv          = local.stage_1_output.metastore_fcv
+  metastore_tier         = local.stage_1_output.metastore_tier
+  num_test_instances     = local.stage_1_output.num_test_instances
+  test_instance_tier     = local.stage_1_output.test_instance_tier
+  test_instance_size     = local.stage_1_output.test_instance_size
 
   om_admin       = jsondecode(file("${path.root}/../om-admin.json"))
   om_public_key  = local.om_admin.programmaticApiKey.publicKey
