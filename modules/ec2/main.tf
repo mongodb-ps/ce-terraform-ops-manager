@@ -79,13 +79,17 @@ resource "aws_instance" "vm" {
   subnet_id     = var.subnet_id
 
   vpc_security_group_ids = [aws_security_group.vm_sg.id]
-  
+
   # User data script for initialization
-  user_data = var.init_script != "" ? var.init_script : null
+  user_data                   = var.init_script != "" ? var.init_script : null
   user_data_replace_on_change = true
 
   tags = merge(var.tags, {
-    Name = "${var.instance_name_prefix}-${count.index + 1}",
+    Name        = "${var.instance_name_prefix}-${count.index + 1}",
+    "expire-on" = local.expire_on_date
+  })
+  volume_tags = merge(var.tags, {
+    Name        = "${var.instance_name_prefix}-${count.index + 1}-root-volume",
     "expire-on" = local.expire_on_date
   })
 
@@ -96,6 +100,6 @@ resource "aws_instance" "vm" {
     encrypted             = true
   }
   lifecycle {
-    ignore_changes = [ tags ]
+    ignore_changes = [tags]
   }
 }
