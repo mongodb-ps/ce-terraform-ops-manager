@@ -125,7 +125,12 @@ variable "test_instance_size" {
 }
 
 variable "metastore_tier" {
-  description = "Instance tier for metastore"
+  description = "Instance tier for metastore."
   type        = string
   default     = "t3.small"
+}
+
+variable "s3_prefix" {
+  description = "Prefix of S3 buckets. Need to be globally unique."
+  type        = string
 }

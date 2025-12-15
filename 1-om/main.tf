@@ -24,6 +24,7 @@ resource "local_file" "vars_json" {
     test_instance_tier     = var.test_instance_tier
     test_instance_size     = var.test_instance_size
     metastore_tier         = var.metastore_tier
+    s3_prefix              = var.s3_prefix
   })
 }
 
