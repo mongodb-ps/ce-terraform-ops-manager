@@ -99,7 +99,4 @@ resource "aws_instance" "vm" {
     delete_on_termination = true
     encrypted             = true
   }
-  lifecycle {
-    ignore_changes = [tags]
-  }
 }

@@ -7,7 +7,6 @@ variable "instance_count" {
 variable "instance_type" {
   description = "EC2 instance type"
   type        = string
-  default     = "t3.micro"
 }
 
 variable "ami_id" {
@@ -23,13 +22,11 @@ variable "key_name" {
 variable "vpc_id" {
   description = "VPC ID where resources will be created. If not provided, default VPC will be used"
   type        = string
-  default     = "vpc-bf7894d6" # Stockholm region default VPC
 }
 
 variable "subnet_id" {
   description = "Subnet ID where resources will be created. If not provided, default subnet will be used"
   type        = string
-  default     = "subnet-7b2ac712" # Stockholm region default subnet eu-north-1a
 }
 
 variable "allowed_ssh_cidrs" {
@@ -58,11 +55,6 @@ variable "instance_name_prefix" {
 variable "tags" {
   description = "Additional tags to apply to the EC2 instances"
   type        = map(string)
-  default = {
-    "owner" : "yaoxing.zhang",
-    "expire-on" : "",
-    "project-id" : "internal"
-  }
 }
 
 variable "init_script" {
