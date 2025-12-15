@@ -16,7 +16,7 @@ module "om_appdb" {
     OM_APPDB_USER     = var.backing_db_credentials.name,
     OM_APPDB_PASSWORD = var.backing_db_credentials.pwd,
     OM_APPDB_VERSION  = var.appdb_version,
-    WHITELIST_CIDR    = data.http.my_ip.body
+    WHITELIST_CIDR    = data.http.my_ip.response_body
   })
 }
 
@@ -34,6 +34,7 @@ module "om_app" {
   key_name               = var.key_name
   tags                   = local.tags
   root_block_device_size = var.om_size
+  iam_instance_profile   = "s3_full_access"
   ingress_rules = [
     {
       description = "HTTP 8080 access"
@@ -65,4 +66,16 @@ resource "null_resource" "om_ready" {
   provisioner "local-exec" {
     command = "bash ${path.root}/../scripts/wait-for-om.sh ${module.om_app.instance_public_dns[0]} 8080"
   }
+}
+
+# Create S3 buckets for backup stores
+module "oplog_store" {
+  source     = "../modules/s3"
+  bucket_name = local.oplog_store_bucket
+  tags = local.tags
+}
+module "snapshot_store" {
+  source     = "../modules/s3"
+  bucket_name = local.snapshot_store_bucket
+  tags = local.tags
 }

@@ -10,5 +10,5 @@ output "om_access_url" {
 
 output "my_ip" {
   description = "Your current public IP address"
-  value       = data.http.my_ip.body
+  value       = data.http.my_ip.response_body
 }

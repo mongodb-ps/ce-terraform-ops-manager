@@ -67,3 +67,9 @@ variable "root_block_device_size" {
   description = "Size of root device."
   type        = number
 }
+
+variable "iam_instance_profile" {
+  description = "IAM instance profile to attach to the EC2 instances"
+  type        = string
+  default     = null
+}

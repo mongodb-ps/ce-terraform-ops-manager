@@ -72,13 +72,13 @@ resource "aws_security_group" "vm_sg" {
 
 # EC2 Instances
 resource "aws_instance" "vm" {
-  count         = var.instance_count
-  ami           = var.ami_id
-  instance_type = var.instance_type
-  key_name      = var.key_name != "" ? var.key_name : null
-  subnet_id     = var.subnet_id
-
+  count                  = var.instance_count
+  ami                    = var.ami_id
+  instance_type          = var.instance_type
+  key_name               = var.key_name != "" ? var.key_name : null
+  subnet_id              = var.subnet_id
   vpc_security_group_ids = [aws_security_group.vm_sg.id]
+  iam_instance_profile   = var.iam_instance_profile
 
   # User data script for initialization
   user_data                   = var.init_script != "" ? var.init_script : null

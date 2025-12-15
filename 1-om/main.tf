@@ -2,6 +2,9 @@ locals {
   # If expire-on tag is not set, set it to 72 hours from now
   expire_on_date = lookup(var.tags, "expire-on", "") != "" ? var.tags["expire-on"] : formatdate("YYYY-MM-DD", timeadd(timestamp(), "72h"))
   tags           = merge(var.tags, { "expire-on" = local.expire_on_date })
+  s3_prefix              = var.s3_prefix != "" ? var.s3_prefix : split("@", local.tags["owner"])[0]
+  oplog_store_bucket    = "${local.s3_prefix}-oplog-store"
+  snapshot_store_bucket  = "${local.s3_prefix}-snapshot-store"
 }
 
 resource "local_file" "vars_json" {
