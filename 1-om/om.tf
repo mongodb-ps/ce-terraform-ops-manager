@@ -4,18 +4,18 @@ data "http" "my_ip" {
 module "om_appdb" {
   source                 = "../modules/ec2"
   instance_name_prefix   = "om-appdb"
-  instance_type          = var.appdb_tier
-  vpc_id                 = var.vpc_id
-  subnet_id              = var.subnet_id
-  ami_id                 = var.ami_id
+  vpc_id                 = var.aws_config.vpc_id
+  subnet_id              = var.aws_config.subnet_id
   tags                   = local.tags
-  key_name               = var.key_name
-  root_block_device_size = var.appdb_size
+  key_name               = var.aws_config.key_name
+  ami_id                 = local.om_config.appdb.ami_id
+  instance_type          = local.om_config.appdb.tier
+  root_block_device_size = local.om_config.appdb.root_size_gb
 
   init_script = templatefile("${path.root}/../init-scripts/appdb-init.sh", {
     OM_APPDB_USER     = var.backing_db_credentials.name,
     OM_APPDB_PASSWORD = var.backing_db_credentials.pwd,
-    OM_APPDB_VERSION  = var.appdb_version,
+    OM_APPDB_VERSION  = local.om_config.appdb.version,
     WHITELIST_CIDR    = data.http.my_ip.response_body
   })
 }
@@ -27,13 +27,13 @@ locals {
 module "om_app" {
   source                 = "../modules/ec2"
   instance_name_prefix   = "om"
-  instance_type          = var.om_tier
-  vpc_id                 = var.vpc_id
-  subnet_id              = var.subnet_id
-  ami_id                 = var.ami_id
-  key_name               = var.key_name
+  vpc_id                 = var.aws_config.vpc_id
+  subnet_id              = var.aws_config.subnet_id
+  key_name               = var.aws_config.key_name
+  ami_id                 = local.om_config.ami_id
+  instance_type          = local.om_config.tier
+  root_block_device_size = local.om_config.root_size_gb
   tags                   = local.tags
-  root_block_device_size = var.om_size
   iam_instance_profile   = "s3_full_access"
   ingress_rules = [
     {
@@ -52,7 +52,7 @@ module "om_app" {
     }
   ]
   init_script = templatefile("${path.root}/../init-scripts/om-init.sh", {
-    OM_DOWNLOAD_URL   = var.om_download_url,
+    OM_DOWNLOAD_URL   = local.om_config.download_url,
     OM_APPDB_HOSTS    = local.appdb_hosts_str,
     OM_APPDB_USER     = var.backing_db_credentials.name,
     OM_APPDB_PASSWORD = var.backing_db_credentials.pwd
