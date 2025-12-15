@@ -133,4 +133,5 @@ variable "metastore_tier" {
 variable "s3_prefix" {
   description = "Prefix of S3 buckets. Need to be globally unique."
   type        = string
+  default     = ""
 }
