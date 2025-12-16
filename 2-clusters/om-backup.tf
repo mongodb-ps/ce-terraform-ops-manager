@@ -12,7 +12,7 @@ resource "null_resource" "enable_backup_daemon" {
 }
 
 resource "null_resource" "enable_mongo_oplog_store" {
-  count = (local.backup_type == "oplog" || local.backup_type == "filesystem") ? 1 : 0
+  count = (local.backup_type == "mongo" || local.backup_type == "filesystem") ? 1 : 0
   triggers = {
     always_run = timestamp()
   }
@@ -34,7 +34,7 @@ resource "null_resource" "enable_mongo_oplog_store" {
 }
 
 resource "null_resource" "enable_mongo_snapshot_store" {
-  count = local.backup_type == "oplog" ? 1 : 0
+  count = local.backup_type == "mongo" ? 1 : 0
   triggers = {
     always_run = timestamp()
   }
