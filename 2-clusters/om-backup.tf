@@ -12,25 +12,25 @@ resource "null_resource" "enable_backup_daemon" {
 }
 
 resource "null_resource" "enable_mongo_oplog_store" {
-  count = (local.backup_type == "mongo" || local.backup_type == "filesystem") ? 1 : 0
+  count = (local.backup_type == "mongo" || local.backup_type == "fileSystem") ? 1 : 0
   triggers = {
     always_run = timestamp()
   }
   provisioner "local-exec" {
     environment = {
-      OM_URL          = local.om_access_url
-      PUBLIC_KEY      = local.om_public_key
-      PRIVATE_KEY     = local.om_private_key
-      OPLOG_HOSTS_STR = join(",", local.backup_hosts)
-      OPLOG_USER      = local.backing_db_credentials.name
-      OPLOG_PWD       = local.backing_db_credentials.pwd
-      OPLOG_STORE_ID  = "MongoOplogStore1"
-      STORE_TYPE      = "oplog"
-      BACKUP_TYPE     = "mongo"
+      OM_URL      = local.om_access_url
+      PUBLIC_KEY  = local.om_public_key
+      PRIVATE_KEY = local.om_private_key
+      HOSTS_STR   = join(",", local.backup_hosts)
+      OPLOG_USER  = local.backing_db_credentials.name
+      OPLOG_PWD   = local.backing_db_credentials.pwd
+      STORE_ID    = "MongoOplogStore1"
+      STORE_TYPE  = "oplog"
+      BACKUP_TYPE = "mongo"
     }
     command = "python3 ${path.root}/../scripts/configure_backup.py"
   }
-  depends_on = [ null_resource.create_backup_rs ]
+  depends_on = [null_resource.create_backup_rs]
 }
 
 resource "null_resource" "enable_mongo_snapshot_store" {
@@ -40,19 +40,19 @@ resource "null_resource" "enable_mongo_snapshot_store" {
   }
   provisioner "local-exec" {
     environment = {
-      OM_URL          = local.om_access_url
-      PUBLIC_KEY      = local.om_public_key
-      PRIVATE_KEY     = local.om_private_key
-      OPLOG_HOSTS_STR = join(",", local.backup_hosts)
-      OPLOG_USER      = local.backing_db_credentials.name
-      OPLOG_PWD       = local.backing_db_credentials.pwd
-      OPLOG_STORE_ID  = "MongoSnapshotStore1"
-      STORE_TYPE      = "snapshot"
-      BACKUP_TYPE     = "mongo"
+      OM_URL      = local.om_access_url
+      PUBLIC_KEY  = local.om_public_key
+      PRIVATE_KEY = local.om_private_key
+      HOSTS_STR   = join(",", local.backup_hosts)
+      OPLOG_USER  = local.backing_db_credentials.name
+      OPLOG_PWD   = local.backing_db_credentials.pwd
+      STORE_ID    = "MongoSnapshotStore1"
+      STORE_TYPE  = "snapshot"
+      BACKUP_TYPE = "mongo"
     }
     command = "python3 ${path.root}/../scripts/configure_backup.py"
   }
-  depends_on = [ null_resource.create_backup_rs ]
+  depends_on = [null_resource.create_backup_rs]
 }
 
 resource "null_resource" "enable_s3_oplog_store" {
@@ -62,21 +62,21 @@ resource "null_resource" "enable_s3_oplog_store" {
   }
   provisioner "local-exec" {
     environment = {
-      OM_URL          = local.om_access_url
-      PUBLIC_KEY      = local.om_public_key
-      PRIVATE_KEY     = local.om_private_key
-      OPLOG_HOSTS_STR = join(",", local.backup_hosts)
-      OPLOG_USER      = local.backing_db_credentials.name
-      OPLOG_PWD       = local.backing_db_credentials.pwd
-      OPLOG_STORE_ID  = "S3OplogStore1"
-      STORE_TYPE      = "oplog"
-      BACKUP_TYPE     = "s3"
+      OM_URL             = local.om_access_url
+      PUBLIC_KEY         = local.om_public_key
+      PRIVATE_KEY        = local.om_private_key
+      HOSTS_STR          = join(",", local.backup_hosts)
+      OPLOG_USER         = local.backing_db_credentials.name
+      OPLOG_PWD          = local.backing_db_credentials.pwd
+      STORE_ID           = "S3OplogStore1"
+      STORE_TYPE         = "oplog"
+      BACKUP_TYPE        = "s3"
       S3_BUCKET_NAME     = "${local.s3_config.prefix}-oplog-store"
       S3_BUCKET_ENDPOINT = "${local.s3_config.endpoint}"
     }
     command = "python3 ${path.root}/../scripts/configure_backup.py"
   }
-  depends_on = [ null_resource.create_backup_rs ]
+  depends_on = [null_resource.create_backup_rs]
 }
 
 resource "null_resource" "enable_s3_snapshot_store" {
@@ -86,21 +86,39 @@ resource "null_resource" "enable_s3_snapshot_store" {
   }
   provisioner "local-exec" {
     environment = {
-      OM_URL          = local.om_access_url
-      PUBLIC_KEY      = local.om_public_key
-      PRIVATE_KEY     = local.om_private_key
-      OPLOG_HOSTS_STR = join(",", local.backup_hosts)
-      OPLOG_USER      = local.backing_db_credentials.name
-      OPLOG_PWD       = local.backing_db_credentials.pwd
-      OPLOG_STORE_ID  = "S3SnapshotStore1"
-      STORE_TYPE      = "snapshot"
-      BACKUP_TYPE     = "s3"
+      OM_URL             = local.om_access_url
+      PUBLIC_KEY         = local.om_public_key
+      PRIVATE_KEY        = local.om_private_key
+      HOSTS_STR          = join(",", local.backup_hosts)
+      OPLOG_USER         = local.backing_db_credentials.name
+      OPLOG_PWD          = local.backing_db_credentials.pwd
+      STORE_ID           = "S3SnapshotStore1"
+      STORE_TYPE         = "snapshot"
+      BACKUP_TYPE        = "s3"
       S3_BUCKET_NAME     = "${local.s3_config.prefix}-snapshot-store"
       S3_BUCKET_ENDPOINT = "${local.s3_config.endpoint}"
     }
     command = "python3 ${path.root}/../scripts/configure_backup.py"
   }
-  depends_on = [ null_resource.create_backup_rs ]
+  depends_on = [null_resource.create_backup_rs]
 }
 
-# TODO: Add filesystem backup store support
+resource "null_resource" "enable_fs_snapshot_store" {
+  count = local.backup_type == "fileSystem" ? 1 : 0
+  triggers = {
+    always_run = timestamp()
+  }
+  provisioner "local-exec" {
+    environment = {
+      OM_URL          = local.om_access_url
+      PUBLIC_KEY      = local.om_public_key
+      PRIVATE_KEY     = local.om_private_key
+      STORE_ID        = "FSSnapshotStore1"
+      STORE_TYPE      = "snapshot"
+      BACKUP_TYPE     = "fileSystem"
+      FILESYSTEM_PATH = "/data/snapshots"
+    }
+    command = "python3 ${path.root}/../scripts/configure_backup.py"
+  }
+  depends_on = [null_resource.create_backup_rs]
+}
