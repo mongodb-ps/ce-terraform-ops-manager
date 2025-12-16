@@ -15,8 +15,8 @@ rs = params["rs"]
 hosts = params["hosts"]
 user = params["user"]
 pwd = params["pwd"]
-metastore_version = params["metastore_version"]
-metastore_fcv = params["metastore_fcv"]
+backup_version = params["backup_version"]
+backup_fcv = params["backup_fcv"]
 
 api_url = f"{om_url}api/public/v1.0/groups/{project_id}/automationConfig"
 auto_config_response = api_get(api_url, public_key, private_key, {})
@@ -81,14 +81,14 @@ auto_config["processes"].extend([
         "auditLogRotate": {"sizeThresholdMB": 1000.0, "timeThresholdHrs": 24},
         "authSchemaVersion": 5,
         "disabled": False,
-        "featureCompatibilityVersion": f"{metastore_fcv}",
+        "featureCompatibilityVersion": f"{backup_fcv}",
         "horizons": {},
         "hostname": f"{host}",
         "logRotate": {"sizeThresholdMB": 1000.0, "timeThresholdHrs": 24},
         "manualMode": False,
         "name": f"{rs}_{i}",
         "processType": "mongod",
-        "version": f"{metastore_version}",
+        "version": f"{backup_version}",
     }
     for i, host in enumerate(hosts)
 ])

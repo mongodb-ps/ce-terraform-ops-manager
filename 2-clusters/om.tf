@@ -1,14 +1,14 @@
 # Create backing DB for OM Lead
-module "om_metastore" {
+module "om_backup" {
   source                 = "../modules/ec2"
-  instance_name_prefix   = "om-metastore"
-  instance_type          = local.metastore_tier
-  vpc_id                 = local.vpc_id
-  subnet_id              = local.subnet_id
+  instance_name_prefix   = "om-backup"
+  instance_type          = local.test_instance_config.tier
+  vpc_id                 = local.aws_config.vpc_id
+  subnet_id              = local.aws_config.subnet_id
   tags                   = local.tags
-  instance_count         = 1
-  ami_id                 = local.ami_id
-  key_name               = local.key_name
+  instance_count         = local.om_config.backing_db.instance_count
+  ami_id                 = local.om_config.backing_db.ami_id
+  key_name               = local.aws_config.key_name
   root_block_device_size = 20
   init_script = templatefile("${path.root}/../init-scripts/agent-init.sh", {
     OM_URL                = local.om_access_url,
@@ -27,77 +27,27 @@ locals {
     user        = local.backing_db_credentials.name,
     pwd         = local.backing_db_credentials.pwd
   }
-  metastore_hosts = module.om_metastore.instance_private_dns
-  params_metastore = replace(jsonencode(merge(local.params, {
-    rs                = "metastore",
-    hosts             = local.metastore_hosts,
+  backup_hosts = module.om_backup.instance_private_dns
+  params_backup = replace(jsonencode(merge(local.params, {
+    rs                = "backup",
+    hosts             = local.backup_hosts,
     project_id        = local.om_info.project_id,
-    metastore_version = local.metastore_version,
-    metastore_fcv     = local.metastore_fcv
+    backup_version = local.om_config.backing_db.version,
+    backup_fcv     = local.backup_fcv
   })), "\\n", "")
 }
 
-resource "null_resource" "create_metastore_rs" {
+# Create replica set for OM backup.
+# This rs will later be used as oplog/snapshot store, or metadata store.
+resource "null_resource" "create_backup_rs" {
   triggers = {
     always_run = timestamp()
   }
   provisioner "local-exec" {
     environment = {
-      PARAMS = "${local.params_metastore}"
+      PARAMS = "${local.params_backup}"
     }
     command = "python3 ${path.root}/../scripts/create_cluster.py "
   }
-  depends_on = [ module.om_metastore ]
-}
-
-resource "null_resource" "enable_backup_daemon" {
-  provisioner "local-exec" {
-    environment = {
-      OM_URL      = local.om_access_url
-      HEADDB      = "/data/head/" # Must ends with /
-      PUBLIC_KEY  = local.om_public_key
-      PRIVATE_KEY = local.om_private_key
-    }
-    command = "python3 ${path.root}/../scripts/enable_daemon.py"
-  }
-}
-
-resource "null_resource" "enable_oplog_store" {
-  triggers = {
-    always_run = timestamp()
-  }
-  provisioner "local-exec" {
-    environment = {
-      OM_URL          = local.om_access_url
-      PUBLIC_KEY      = local.om_public_key
-      PRIVATE_KEY     = local.om_private_key
-      OPLOG_HOSTS_STR = join(",", local.metastore_hosts)
-      OPLOG_USER      = local.backing_db_credentials.name
-      OPLOG_PWD       = local.backing_db_credentials.pwd
-      OPLOG_STORE_ID  = "OplogStore1"
-      STORE_TYPE      = "oplog"
-    }
-    command = "python3 ${path.root}/../scripts/configure_backup.py"
-  }
-  depends_on = [ null_resource.create_metastore_rs ]
-}
-
-resource "null_resource" "enable_snapshot_store" {
-  triggers = {
-    always_run = timestamp()
-  }
-  provisioner "local-exec" {
-    environment = {
-      OM_URL          = local.om_access_url
-      PUBLIC_KEY      = local.om_public_key
-      PRIVATE_KEY     = local.om_private_key
-      OPLOG_HOSTS_STR = join(",", local.metastore_hosts)
-      OPLOG_USER      = local.backing_db_credentials.name
-      OPLOG_PWD       = local.backing_db_credentials.pwd
-      OPLOG_STORE_ID  = "SnapshotStore1"
-      STORE_TYPE      = "snapshot"
-    }
-    command = "python3 ${path.root}/../scripts/configure_backup.py"
-  }
-  depends_on = [ null_resource.create_metastore_rs ]
+  depends_on = [ module.om_backup ]
 }
