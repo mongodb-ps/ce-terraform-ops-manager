@@ -2,9 +2,12 @@ locals {
   # If expire-on tag is not set, set it to 72 hours from now
   expire_on_date        = lookup(var.tags, "expire-on", "") != "" ? var.tags["expire-on"] : formatdate("YYYY-MM-DD", timeadd(timestamp(), "72h"))
   tags                  = merge(var.tags, { "expire-on" = local.expire_on_date })
-  s3_prefix             = var.s3_prefix != null ? var.s3_prefix : split("@", local.tags["owner"])[0]
-  oplog_store_bucket    = "${local.s3_prefix}-oplog-store"
-  snapshot_store_bucket = "${local.s3_prefix}-snapshot-store"
+  s3_config             = {
+    prefix   = var.s3_config.prefix != null ? var.s3_config.prefix : replace(lower(var.tags["owner"]), "@", "-at-")
+    endpoint = var.s3_config.endpoint != null ? var.s3_config.endpoint : "https://s3.${var.aws_config.region}.amazonaws.com"
+  }
+  oplog_store_bucket    = "${local.s3_config.prefix}-oplog-store"
+  snapshot_store_bucket = "${local.s3_config.prefix}-snapshot-store"
   om_config = merge(var.om_config, {
     ami_id = var.om_config.ami_id != null ? var.om_config.ami_id : var.default_ami_id,
     appdb = merge(var.om_config.appdb, {
@@ -29,7 +32,9 @@ resource "local_file" "vars_json" {
     om_config              = local.om_config
     test_instance_config   = local.test_instance_config
     default_ami_id         = var.default_ami_id
-    s3_prefix              = var.s3_prefix
+    s3_config              = var.s3_config
+    om_access_url          = "http://${module.om_app.instance_public_dns[0]}:8080/"
+    backup_type            = var.backup_type
   })
 }
 

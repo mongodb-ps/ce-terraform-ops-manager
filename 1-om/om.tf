@@ -33,6 +33,7 @@ module "om_app" {
   ami_id                 = local.om_config.ami_id
   instance_type          = local.om_config.tier
   root_block_device_size = local.om_config.root_size_gb
+  instance_count         = local.om_config.instance_count
   tags                   = local.tags
   iam_instance_profile   = "s3_full_access"
   ingress_rules = [
