@@ -3,7 +3,7 @@ locals {
   expire_on_date        = lookup(var.tags, "expire-on", "") != "" ? var.tags["expire-on"] : formatdate("YYYY-MM-DD", timeadd(timestamp(), "72h"))
   tags                  = merge(var.tags, { "expire-on" = local.expire_on_date })
   s3_config             = {
-    prefix   = var.s3_config.prefix != null ? var.s3_config.prefix : replace(lower(var.tags["owner"]), "@", "-at-")
+    prefix   = var.s3_config.prefix != null ? var.s3_config.prefix : split("@", lower(var.tags["owner"]))[0]
     endpoint = var.s3_config.endpoint != null ? var.s3_config.endpoint : "https://s3.${var.aws_config.region}.amazonaws.com"
   }
   oplog_store_bucket    = "${local.s3_config.prefix}-oplog-store"
@@ -32,7 +32,7 @@ resource "local_file" "vars_json" {
     om_config              = local.om_config
     test_instance_config   = local.test_instance_config
     default_ami_id         = var.default_ami_id
-    s3_config              = var.s3_config
+    s3_config              = local.s3_config
     om_access_url          = "http://${module.om_app.instance_public_dns[0]}:8080/"
     backup_type            = var.backup_type
   })
