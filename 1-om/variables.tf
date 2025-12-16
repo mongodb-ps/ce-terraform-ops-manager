@@ -56,7 +56,7 @@ variable "om_config" {
       version        = "8.0.16-ent"
       tier           = "t3.small"
       root_size_gb   = 50
-      instance_count = 3
+      instance_count = 1
     }
   }
 }
@@ -73,7 +73,7 @@ variable "test_instance_config" {
     ami_id         = null
     tier           = "t3.small"
     root_size_gb   = 20
-    instance_count = 3
+    instance_count = 1
   }
 }
 
