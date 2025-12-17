@@ -1,5 +1,6 @@
 # Enable backup daemon in Ops Manager
 resource "null_resource" "enable_backup_daemon" {
+  count = local.om_config.backup_type != "none" ? 1 : 0
   provisioner "local-exec" {
     environment = {
       OM_URL      = local.om_access_url
@@ -12,7 +13,7 @@ resource "null_resource" "enable_backup_daemon" {
 }
 
 resource "null_resource" "enable_mongo_oplog_store" {
-  count = (local.backup_type == "mongo" || local.backup_type == "fileSystem") ? 1 : 0
+  count = (local.om_config.backup_type == "mongo" || local.om_config.backup_type == "fileSystem") ? 1 : 0
   triggers = {
     always_run = timestamp()
   }
@@ -34,7 +35,7 @@ resource "null_resource" "enable_mongo_oplog_store" {
 }
 
 resource "null_resource" "enable_mongo_snapshot_store" {
-  count = local.backup_type == "mongo" ? 1 : 0
+  count = local.om_config.backup_type == "mongo" ? 1 : 0
   triggers = {
     always_run = timestamp()
   }
@@ -56,7 +57,7 @@ resource "null_resource" "enable_mongo_snapshot_store" {
 }
 
 resource "null_resource" "enable_s3_oplog_store" {
-  count = local.backup_type == "s3" ? 1 : 0
+  count = local.om_config.backup_type == "s3" ? 1 : 0
   triggers = {
     always_run = timestamp()
   }
@@ -80,7 +81,7 @@ resource "null_resource" "enable_s3_oplog_store" {
 }
 
 resource "null_resource" "enable_s3_snapshot_store" {
-  count = local.backup_type == "s3" ? 1 : 0
+  count = local.om_config.backup_type == "s3" ? 1 : 0
   triggers = {
     always_run = timestamp()
   }
@@ -104,7 +105,7 @@ resource "null_resource" "enable_s3_snapshot_store" {
 }
 
 resource "null_resource" "enable_fs_snapshot_store" {
-  count = local.backup_type == "fileSystem" ? 1 : 0
+  count = local.om_config.backup_type == "fileSystem" ? 1 : 0
   triggers = {
     always_run = timestamp()
   }

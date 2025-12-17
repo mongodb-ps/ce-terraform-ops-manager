@@ -6,7 +6,7 @@ module "om_backup" {
   vpc_id                 = local.aws_config.vpc_id
   subnet_id              = local.aws_config.subnet_id
   tags                   = local.tags
-  instance_count         = local.om_config.backing_db.instance_count
+  instance_count         = local.om_config.backup_type != "none" ? local.om_config.backing_db.instance_count : 0
   ami_id                 = local.om_config.backing_db.ami_id
   key_name               = local.aws_config.key_name
   root_block_device_size = 20

@@ -9,7 +9,6 @@ locals {
   backing_db_credentials = local.stage_1_output.backing_db_credentials
   default_ami_id         = local.stage_1_output.default_ami_id
   om_access_url          = local.stage_1_output.om_access_url
-  backup_type            = local.stage_1_output.backup_type
 
   om_admin       = jsondecode(file("${path.root}/../om-admin.json"))
   om_public_key  = local.om_admin.programmaticApiKey.publicKey
