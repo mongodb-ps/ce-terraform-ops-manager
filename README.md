@@ -1,23 +1,21 @@
-# terraform-ops-manager
-The objective of this repository is to build a set of configurable Terraform scripts that creates an Ops Manager test environment on AWS.
-
-## 1 Disclaimer
+# Terraform Ops Manager
+## 0 Disclaimer
 These code samples are provided for educational and illustrative purposes only, to demonstrate the functionality of specific MongoDB features. They are not production-ready and may lack the security hardening, error handling, and testing required for a live environment.
 
 You are responsible for testing, validating, and securing this code within your own environment before implementation. This material is provided "as is" without warranty or liability.’
 
+## 1 What's Inside
+The tool will create Ops Manager on AWS that has the following features:
+- An Ops Manager instance
+- A standalone AppDB
+- A database for backup which has configurable number of members.
+- Some EC2 instances that has automation running and pointing to "TestProject". You can use these instances to build your cluster for testing.
+- One of the backup solutions configured:
+  - S3
+  - Oplog store + Blockstore (Both using the same DB)
+  - Oplog store + FileSystem store
+
 ## 2 Structure of Repo
-```
-.
-├── 1-om
-├── 2-clusters
-├── init-scripts
-├── misc
-├── modules
-│   ├── ec2
-│   └── s3
-└── scripts
-```
 The main folders that you need to use are:
 - `1-om`: Terraform scripts that create:
   - Ops Manager application
