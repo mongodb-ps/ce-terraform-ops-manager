@@ -68,15 +68,3 @@ resource "null_resource" "om_ready" {
     command = "bash ${path.root}/../scripts/wait-for-om.sh ${module.om_app.instance_public_dns[0]} 8080"
   }
 }
-
-# Create S3 buckets for backup stores
-module "oplog_store" {
-  source     = "../modules/s3"
-  bucket_name = local.oplog_store_bucket
-  tags = local.tags
-}
-module "snapshot_store" {
-  source     = "../modules/s3"
-  bucket_name = local.snapshot_store_bucket
-  tags = local.tags
-}

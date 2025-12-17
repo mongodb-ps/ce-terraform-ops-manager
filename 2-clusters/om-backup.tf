@@ -56,6 +56,20 @@ resource "null_resource" "enable_mongo_snapshot_store" {
   depends_on = [null_resource.create_backup_rs]
 }
 
+# Create S3 buckets for backup stores
+module "oplog_store" {
+  count       = local.om_config.backup_type == "s3" ? 1 : 0
+  source      = "../modules/s3"
+  bucket_name = local.oplog_store_bucket
+  tags        = local.tags
+}
+module "snapshot_store" {
+  count       = local.om_config.backup_type == "s3" ? 1 : 0
+  source      = "../modules/s3"
+  bucket_name = local.snapshot_store_bucket
+  tags        = local.tags
+}
+
 resource "null_resource" "enable_s3_oplog_store" {
   count = local.om_config.backup_type == "s3" ? 1 : 0
   triggers = {
@@ -77,7 +91,7 @@ resource "null_resource" "enable_s3_oplog_store" {
     }
     command = "python3 ${path.root}/../scripts/configure_backup.py"
   }
-  depends_on = [null_resource.create_backup_rs]
+  depends_on = [null_resource.create_backup_rs, module.oplog_store]
 }
 
 resource "null_resource" "enable_s3_snapshot_store" {
@@ -101,7 +115,7 @@ resource "null_resource" "enable_s3_snapshot_store" {
     }
     command = "python3 ${path.root}/../scripts/configure_backup.py"
   }
-  depends_on = [null_resource.create_backup_rs]
+  depends_on = [null_resource.create_backup_rs, module.snapshot_store]
 }
 
 resource "null_resource" "enable_fs_snapshot_store" {

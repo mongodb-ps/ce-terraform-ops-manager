@@ -6,8 +6,6 @@ locals {
     prefix   = var.s3_config.prefix != null ? var.s3_config.prefix : split("@", lower(var.tags["owner"]))[0]
     endpoint = var.s3_config.endpoint != null ? var.s3_config.endpoint : "https://s3.${var.aws_config.region}.amazonaws.com"
   }
-  oplog_store_bucket    = "${local.s3_config.prefix}-oplog-store"
-  snapshot_store_bucket = "${local.s3_config.prefix}-snapshot-store"
   om_config = merge(var.om_config, {
     ami_id = var.om_config.ami_id != null ? var.om_config.ami_id : var.default_ami_id,
     appdb = merge(var.om_config.appdb, {

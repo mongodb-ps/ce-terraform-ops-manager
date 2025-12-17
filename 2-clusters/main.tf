@@ -15,6 +15,8 @@ locals {
   om_private_key = local.om_admin.programmaticApiKey.privateKey
 
   backup_fcv = "${split(".", local.om_config.backing_db.version)[0]}.0"
+  oplog_store_bucket    = "${local.s3_config.prefix}-oplog-store"
+  snapshot_store_bucket = "${local.s3_config.prefix}-snapshot-store"
 }
 
 resource "local_file" "vars_json" {
