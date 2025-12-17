@@ -46,6 +46,7 @@ variable "om_config" {
     tier           = "t3.xlarge"
     root_size_gb   = 50
     instance_count = 1
+    backup_type    = "s3"
     appdb = {
       ami_id       = null # if null, default_ami_id will be used
       tier         = "t3.medium"
