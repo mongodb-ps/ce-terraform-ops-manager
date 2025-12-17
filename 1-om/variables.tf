@@ -1,10 +1,10 @@
 variable "aws_config" {
   description = "Configuration options for AWS."
   type = object({
-    region    = string
-    vpc_id    = string
-    subnet_id = string
-    key_name  = string
+    region    = string # AWS region
+    vpc_id    = string # vpc_id where EC2 instances will be created. Must choose existing VPC.
+    subnet_id = string # subnet_id where EC2 instances will be created. Must choose existing subnet within the VPC.
+    key_name  = string # Name of the existing AWS key pair to use for EC2 instances.
   })
 }
 variable "tags" {
@@ -20,23 +20,24 @@ variable "tags" {
 variable "om_config" {
   description = "Configuration options for Ops Manager."
   type = object({
-    ami_id         = string
-    download_url   = string
-    tier           = string
-    root_size_gb   = number
-    instance_count = number
+    ami_id         = string # EC2 AMI ID for the Ops Manager application servers
+    download_url   = string # Download URL for the Ops Manager package
+    tier           = string # EC2 instance type for the Ops Manager application servers
+    root_size_gb   = number # Root volume size in GB for the Ops Manager application servers
+    instance_count = number # Number of Ops Manager application server instances
+    backup_type    = string # Type of backup store to configure in Ops Manager. Options are 's3', 'mongo', 'fileSystem' or 'none'.
     appdb = object({
-      ami_id       = string
-      tier         = string
-      version      = string
-      root_size_gb = number
+      ami_id       = string # EC2 AMI ID for the Ops Manager application DB
+      tier         = string # EC2 instance type for the Ops Manager application DB
+      version      = string # MongoDB version for the Ops Manager application DB. Only need major.minor version, e.g. "8.0"
+      root_size_gb = number # Root volume size in GB for the Ops Manager application DB
     })
     backing_db = object({
-      ami_id         = string
-      version        = string
-      tier           = string
-      root_size_gb   = number
-      instance_count = number
+      ami_id         = string # EC2 AMI ID for the Ops Manager backing DB
+      version        = string # MongoDB version for the Ops Manager backing DB. Full version string, e.g. "8.0.16-ent"
+      tier           = string # EC2 instance type for the Ops Manager backing DB
+      root_size_gb   = number # Root volume size in GB for the Ops Manager backing DB
+      instance_count = number # Number of instances for the Ops Manager backing DB replica set
     })
   })
   default = {
@@ -64,10 +65,10 @@ variable "om_config" {
 variable "test_instance_config" {
   description = "Configuration options for test instances."
   type = object({
-    ami_id         = string
-    tier           = string
-    root_size_gb   = number
-    instance_count = number
+    ami_id         = string # EC2 AMI ID for the test instances
+    tier           = string # EC2 instance type for the test instances
+    root_size_gb   = number # Root volume size in GB for the test instances
+    instance_count = number # Number of test instances
   })
   default = {
     ami_id         = null
@@ -90,7 +91,7 @@ variable "s3_config" {
     endpoint = string
   })
   default = {
-    prefix = null # will use owner name if null
+    prefix   = null # will use owner name if null
     endpoint = null # will generate AWS S3 endpoint based on your aws region if null
   }
 }
@@ -99,8 +100,8 @@ variable "backing_db_credentials" {
   description = "Ops Manager user credentials"
   sensitive   = true
   type = object({
-    name = string
-    pwd  = string
+    name = string # Username for the Ops Manager backing databases user. AppDB, Oplog store, etc.
+    pwd  = string # Password for the Ops Manager backing databases user. AppDB, Oplog store, etc.
   })
 }
 
@@ -113,10 +114,4 @@ variable "first_user" {
     firstName = string
     lastName  = string
   })
-}
-
-variable "backup_type" {
-  description = "Type of backup store to configure in Ops Manager. Options are 's3', 'mongo' or 'fileSystem'."
-  type        = string
-  default     = "s3"
 }

@@ -34,7 +34,6 @@ resource "local_file" "vars_json" {
     default_ami_id         = var.default_ami_id
     s3_config              = local.s3_config
     om_access_url          = "http://${module.om_app.instance_public_dns[0]}:8080/"
-    backup_type            = var.backup_type
   })
 }
 
