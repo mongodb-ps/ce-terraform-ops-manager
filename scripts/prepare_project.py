@@ -52,7 +52,7 @@ if not agent_key:
             data = json.load(f)
             if project_name in data:
                 agent_key = data[project_name]["agent_api_key"]
-    else:
+    if not agent_key:
         # Create agent API key for the project.
         agent_url = f"{url_prefix}/groups/{project_id}/agentapikeys"
         agent_key_response = api_post(agent_url, public_key, private_key, {
