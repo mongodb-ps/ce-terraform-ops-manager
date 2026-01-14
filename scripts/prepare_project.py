@@ -17,6 +17,9 @@ state_file  = params.get("state_file", "../stage-2-output.json")
 # Create organization if it does not exist.
 org_url = f"{url_prefix}/orgs"
 orgs_response = api_get(org_url, public_key, private_key, {})
+if orgs_response.status_code != 200:
+    raise Exception(f"Failed to get orgs: {orgs_response.text}")
+
 orgs = orgs_response.json().get("results", [])
 org_id = None
 for org in orgs:
