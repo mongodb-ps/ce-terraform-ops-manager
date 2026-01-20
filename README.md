@@ -28,6 +28,8 @@ The main folders that you need to use are:
 Due to the limitation of Terraform, I can't do everything in 1 phase. You need to finish `1-om` then start `2-clusters`.
 
 ## 3 Use the Tool
+**Be aware of the [known issues](#4-known-issues). Some of them can fail the deployment.**
+
 ### 3.1 Required Variables
 I tried to make everything autowired so you only need to fill some necessary information. The other variables can let you customize the Ops Manager but they have defaults. 
 All the important variables are described below. You can find in `1-om/variables.tf` all the other variables and instructions.
