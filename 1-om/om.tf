@@ -1,6 +1,17 @@
 data "http" "my_ip" {
   url = "https://ifconfig.me/ip"
 }
+
+resource "null_resource" "prerequisites" {
+  triggers = {
+    always_run = timestamp()
+  }
+
+  provisioner "local-exec" {
+    command = "bash ${path.root}/../scripts/check-prerequisites.sh"
+  }
+}
+
 module "om_appdb" {
   source                 = "../modules/ec2"
   instance_name_prefix   = "om-appdb"
@@ -11,6 +22,8 @@ module "om_appdb" {
   ami_id                 = local.om_config.appdb.ami_id
   instance_type          = local.om_config.appdb.tier
   root_block_device_size = local.om_config.appdb.root_size_gb
+
+  depends_on = [null_resource.prerequisites]
 
   init_script = templatefile("${path.root}/../init-scripts/appdb-init.sh", {
     OM_APPDB_USER     = var.backing_db_credentials.name,
