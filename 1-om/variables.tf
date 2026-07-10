@@ -7,13 +7,15 @@ variable "aws_config" {
     | `region` | AWS region. |
     | `vpc_id` | ID of the existing VPC where EC2 instances will be created. |
     | `subnet_id` | ID of the existing subnet within the VPC where EC2 instances will be created. |
-    | `key_name` | Name of the existing AWS key pair to use for EC2 instances. |
+    | `key_name` | Name of the AWS key pair Terraform creates for the EC2 instances. |
+    | `public_key` | Public-key filename under `~/.ssh` used to create the AWS key pair. |
   EOT
   type = object({
-    region    = string
-    vpc_id    = string
-    subnet_id = string
-    key_name  = string
+    region     = string
+    vpc_id     = string
+    subnet_id  = string
+    key_name   = string
+    public_key = string
   })
 }
 variable "tags" {

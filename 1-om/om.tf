@@ -12,6 +12,13 @@ resource "null_resource" "prerequisites" {
   }
 }
 
+resource "aws_key_pair" "vm" {
+  key_name   = var.aws_config.key_name
+  public_key = file(pathexpand("~/.ssh/${var.aws_config.public_key}"))
+
+  tags = local.tags
+}
+
 module "om_appdb" {
   source                 = "../modules/ec2"
   instance_name_prefix   = "om-appdb"
@@ -23,7 +30,7 @@ module "om_appdb" {
   instance_type          = local.om_config.appdb.tier
   root_block_device_size = local.om_config.appdb.root_size_gb
 
-  depends_on = [null_resource.prerequisites]
+  depends_on = [aws_key_pair.vm, null_resource.prerequisites]
 
   init_script = templatefile("${path.root}/../init-scripts/appdb-init.sh", {
     OM_APPDB_USER     = var.backing_db_credentials.name,
