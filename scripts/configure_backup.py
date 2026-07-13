@@ -16,8 +16,8 @@ store_type = os.environ["STORE_TYPE"]
 backup_type = os.environ["BACKUP_TYPE"]
 
 client = OpsManagerClient(om_url, public_key, private_key)
-assert store_type in ["oplog", "blockstore"], (
-    "STORE_TYPE must be 'oplog' or 'blockstore'"
+assert store_type in ["oplog", "snapshot"], (
+    "STORE_TYPE must be 'oplog' or 'snapshot'"
 )
 assert backup_type in ["mongo", "s3"], "BACKUP_TYPE must be 'mongo' or 's3'"
 
@@ -97,8 +97,8 @@ if store_type == "oplog":
                     sse_enabled=False,
                 ),
             )
-elif store_type == "blockstore":
-    # Configure blockstore for backup.
+elif store_type == "snapshot":
+    # Configure snapshot for backup.
     if backup_type == "mongo":
         # Use MongoDB replica set for blockstore.
         bs_resource = client.blockstore_resource

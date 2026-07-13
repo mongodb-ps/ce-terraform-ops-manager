@@ -20,6 +20,32 @@
             "console": "integratedTerminal",
             "subProcess": true,
             "redirectOutput": true
+        },
+        {
+            "name": "Debug: test_helper_env (export)",
+            "type": "debugpy",
+            "request": "launch",
+            "program": "${workspaceFolder}/scripts/test_helper_env.py",
+            "args": [
+                "--url",
+                "--public-key",
+                "--private-key",
+                "--org-name",
+                "TestOrg",
+                "--project-name",
+                "TestProject"
+            ],
+            "cwd": "${workspaceFolder}",
+            "console": "integratedTerminal",
+            "redirectOutput": true
+        },
+        {
+            "name": "Debug: Current File",
+            "type": "debugpy",
+            "request": "launch",
+            "program": "${file}",
+            "console": "integratedTerminal",
+            "redirectOutput": true
         }
     ]
 }

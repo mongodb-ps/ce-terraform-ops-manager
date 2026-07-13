@@ -17,22 +17,43 @@ daemon = daemons[0]
 daemon_id = daemon["id"]
 machine = daemon["machine"]
 machine_name = machine["machine"]
-machine["headRootDirectory"] = head
 
+resource = client.backup_daemon_resource
 if daemon["configured"]:
-    print(f"Daemon {daemon_id}/{machine_name} is already enabled.")
-    sys.exit(0)
-
-print(f"Enabling daemon {daemon_id}/{machine_name}...")
-client.backup_daemon_resource.update(
-    path_params=client.backup_daemon_resource.UpdatePathParams(
-        machine=machine_name,
-        head_root_directory=head,
-    ),
-    query_params=None,
-    body_params=client.backup_daemon_resource.UpdateBodyParams(
-        configured=True,
-        machine=machine,
-    ),
-)
-print(f"Daemon {daemon_id}/{machine_name} enabled successfully.")
+    print(f"Daemon {daemon_id}/{machine_name} is already enabled. Updating...")
+    response = resource.update(
+        path_params=client.backup_daemon_resource.UpdatePathParams(
+            machine=machine_name,
+            head_root_directory=head,
+        ),
+        query_params=None,
+        body_params=client.backup_daemon_resource.UpdateBodyParams(
+            assignment_enabled=True,
+            configured=True,
+            machine=resource.UpdateBodyParams.MachineParams(
+                head_root_directory=head,
+                machine=machine_name,
+            ),
+        ),
+    )
+else:
+    print(f"Enabling daemon {daemon_id}/{machine_name}...")
+    response = resource.create(
+        path_params=client.backup_daemon_resource.CreatePathParams(
+            machine=machine_name,
+        ),
+        query_params=None,
+        body_params=client.backup_daemon_resource.CreateBodyParams(
+            assignment_enabled=True,
+            configured=True,
+            machine=resource.CreateBodyParams.MachineParams(
+                head_root_directory=head,
+                machine=machine_name,
+            ),
+        ),
+    )
+if "error" not in response:
+    print(f"Daemon {daemon_id}/{machine_name} enabled/updated successfully.")
+else:
+    print(f"Failed to enable/update daemon {daemon_id}/{machine_name}: {str(response)}")
+    sys.exit(1)
