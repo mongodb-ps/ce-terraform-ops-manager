@@ -19,6 +19,7 @@ client = OpsManagerClient(url, public_key, private_key)
 
 # Create organization if it does not exist.
 orgs_response = client.organizations_resource.get_all_organizations(query_params=None)
+assert "error" not in orgs_response, f"Can't retrieve organizations: {str(orgs_response)}"
 orgs = orgs_response.get("results", [])
 org_id: Optional[str] = next(
     (
@@ -47,7 +48,7 @@ project_response = client.projects_resource.get_by_name(
     ),
     query_params=None,
 )
-if project_response.get("error", None) == "404":
+if project_response.get("error", None) == 404:
     assert org_id is not None, (
         "Organization ID should not be None when creating a project."
     )
@@ -59,7 +60,7 @@ if project_response.get("error", None) == "404":
         ),
     )
 
-project_id = project_response["id"]
+project_id = project_response.get("id", None)
 agent_key = project_response.get("agentApiKey")
 
 assert project_id is not None, (

@@ -30,7 +30,7 @@ if store_type == "oplog":
             path_params=os_resource.GetByIdPathParams(oplog_config_id=store_id),
             query_params=None,
         )
-        if "error" in response and response.get("error") == "404":
+        if "error" in response and response.get("error") == 404:
             print(f"Creating oplog store {store_id}...")
             os_resource.create(
                 query_params=None,
@@ -59,7 +59,7 @@ if store_type == "oplog":
         )
         bucket_name = os.environ.get("S3_BUCKET_NAME", "")
         bucket_endpoint = os.environ.get("S3_BUCKET_ENDPOINT", "")
-        if "error" in response and response.get("error") == "404":
+        if "error" in response and response.get("error") == 404:
             print(f"Creating S3 oplog store {store_id}...")
             s3_os_resource.create(
                 query_params=None,
@@ -106,7 +106,7 @@ elif store_type == "blockstore":
             path_params=bs_resource.GetByIdPathParams(blockstore_id=store_id),
             query_params=None,
         )
-        if "error" in response and response.get("error") == "404":
+        if "error" in response and response.get("error") == 404:
             print(f"Creating blockstore {store_id}...")
             bs_resource.create(
                 query_params=None,
@@ -137,7 +137,7 @@ elif store_type == "blockstore":
         )
         bucket_name = os.environ.get("S3_BUCKET_NAME", "")
         bucket_endpoint = os.environ.get("S3_BUCKET_ENDPOINT", "")
-        if "error" in response and response.get("error") == "404":
+        if "error" in response and response.get("error") == 404:
             print(f"Creating S3 blockstore {store_id}...")
             s3_bs_resource.create(
                 query_params=None,
