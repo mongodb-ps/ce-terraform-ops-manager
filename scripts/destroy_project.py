@@ -1,25 +1,37 @@
 """Destroy the project in Ops Manager"""
-import sys
 import os
-from om_api import api_delete, api_get, api_put
+from pyomsdk import OpsManagerClient
 
 om_url = os.environ["OM_URL"]
 public_key = os.environ["PUBLIC_KEY"]
 private_key = os.environ["PRIVATE_KEY"]
 org_id = os.environ["ORG_ID"]
 
-org_proj_url = f"{om_url}/api/public/v1.0/orgs/{org_id}/groups"
-proj_url = f"{om_url}/api/public/v1.0/groups"
-org_url = f"{om_url}/api/public/v1.0/orgs/{org_id}"
+client = OpsManagerClient(om_url, public_key, private_key)
 
 # Get all projects in the organization
-projects_response = api_get(org_proj_url, public_key, private_key, {})
-projects = projects_response.json().get("results", [])
+projects_response = client.organizations_resource.get_all_projects(
+    path_params=client.organizations_resource.GetAllProjectsPathParams(
+        org_id=org_id,
+    ),
+    query_params=None,
+)
+projects = projects_response.get("results", [])
 pids = [project["id"] for project in projects]
+
 # Delete each project
 for pid in pids:
-    del_proj_url = f"{proj_url}/{pid}"
-    api_delete(del_proj_url, public_key, private_key, {})
+    client.projects_resource.delete(
+        path_params=client.projects_resource.DeletePathParams(
+            project_id=pid,
+        ),
+        query_params=None,
+    )
 
 # Finally, delete the organization
-api_delete(org_url, public_key, private_key, {})
+client.organizations_resource.delete_organization(
+    path_params=client.organizations_resource.DeleteOrganizationPathParams(
+        org_id=org_id,
+    ),
+    query_params=None,
+)
