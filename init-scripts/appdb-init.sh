@@ -2,7 +2,14 @@
 
 # Install and init MongoDB
 sudo apt-get install -y gnupg curl
-if [ "${OM_APPDB_VERSION}" == "8.0" ]; then
+if [ "${OM_APPDB_VERSION}" == "8.3" ]; then
+  echo "Installing MongoDB 8.3"
+  # Rapid releases in the 8.x line (8.1+) are signed with the 8.0 annual release key.
+  curl -fsSL https://pgp.mongodb.com/server-8.0.asc | \
+    sudo gpg -o /usr/share/keyrings/mongodb-server-8.3.gpg \
+    --dearmor
+  echo "deb [ arch=amd64,arm64 signed-by=/usr/share/keyrings/mongodb-server-8.3.gpg ] https://repo.mongodb.com/apt/ubuntu jammy/mongodb-enterprise/8.3 multiverse" | sudo tee /etc/apt/sources.list.d/mongodb-enterprise-8.3.list
+elif [ "${OM_APPDB_VERSION}" == "8.0" ]; then
   echo "Installing MongoDB 8.0"
   curl -fsSL https://pgp.mongodb.com/server-8.0.asc | \
     sudo gpg -o /usr/share/keyrings/mongodb-server-8.0.gpg \

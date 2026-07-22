@@ -41,7 +41,7 @@ variable "om_config" {
     })
   })
   default = {
-    download_url   = "https://downloads.mongodb.com/on-prem-mms/deb/mongodb-mms-8.0.16.500.20251105T1415Z.amd64.deb"
+    download_url   = "https://downloads.mongodb.com/on-prem-mms/deb/mongodb-mms-8.0.25.500.20260703T0841Z.amd64.deb"
     ami_id         = null # if null, default_ami_id will be used
     tier           = "t3.xlarge"
     root_size_gb   = 50
@@ -50,12 +50,12 @@ variable "om_config" {
     appdb = {
       ami_id       = null # if null, default_ami_id will be used
       tier         = "t3.medium"
-      version      = "8.0"
+      version      = "8.3"
       root_size_gb = 50
     }
     backing_db = {
       ami_id         = null # if null, default_ami_id will be used
-      version        = "8.0.16-ent"
+      version        = "8.3.4-ent"
       tier           = "t3.small"
       root_size_gb   = 50
       instance_count = 1
