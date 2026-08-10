@@ -2,12 +2,8 @@
 
 set -euo pipefail
 
+# Optional: when provided, only used for an informational message about the SSH key pair.
 key_name="${1:-}"
-if [ -z "$key_name" ]; then
-  echo "Error: key_name argument is required." >&2
-  echo "Usage: $0 <key_name>" >&2
-  exit 1
-fi
 
 if ! command -v python >/dev/null 2>&1; then
   echo "Error: Python 3.10 is required but python was not found in PATH." >&2
@@ -33,13 +29,14 @@ if ! python -m pip show pyomsdk >/dev/null 2>&1; then
   exit 1
 fi
 
-# The local SSH key pair must exist; the public key is imported to AWS.
-key="$HOME/.ssh/$key_name"
-pub="$key.pub"
-if [ ! -f "$key" ] || [ ! -f "$pub" ]; then
-  echo "Error: SSH key pair not found at $key and $pub." >&2
-  echo "Create it first with: ssh-keygen -t ed25519 -C \"my-local-aws-key\" -f ~/.ssh/$key_name" >&2
-  exit 1
+# The local SSH key pair is optional: when it is missing, Terraform generates a new
+# one (tls_private_key), imports it to AWS and saves it to ~/.ssh/<key_name>.
+if [ -n "$key_name" ]; then
+  key="$HOME/.ssh/$key_name"
+  pub="$key.pub"
+  if [ ! -f "$key" ] || [ ! -f "$pub" ]; then
+    echo "Info: SSH key pair '$key_name' not found at $key and $pub; Terraform will generate a new one and save the private key to $key." >&2
+  fi
 fi
 
-echo "Prerequisites satisfied: $python_version, pyomsdk and SSH key pair '$key_name' are available."
+echo "Prerequisites satisfied: $python_version and pyomsdk are available."
