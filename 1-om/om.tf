@@ -12,9 +12,12 @@ resource "null_resource" "prerequisites" {
   }
 }
 
+# The local public key must already exist at ~/.ssh/<key_name>.pub, otherwise the plan
+# fails. Terraform creates the key pair on AWS; if it already exists there but is not in
+# the Terraform state, import it once with: terraform import aws_key_pair.vm <key_name>
 resource "aws_key_pair" "vm" {
-  key_name   = var.aws_config.key_name
-  public_key = file(pathexpand("~/.ssh/${var.aws_config.public_key}"))
+  key_name   = local.aws_config.key_name
+  public_key = file(pathexpand("~/.ssh/${local.aws_config.key_name}.pub"))
 
   tags = local.tags
 }
@@ -22,10 +25,10 @@ resource "aws_key_pair" "vm" {
 module "om_appdb" {
   source                 = "../modules/ec2"
   instance_name_prefix   = "om-appdb"
-  vpc_id                 = var.aws_config.vpc_id
-  subnet_id              = var.aws_config.subnet_id
+  vpc_id                 = local.aws_config.vpc_id
+  subnet_id              = local.aws_config.subnet_id
   tags                   = local.tags
-  key_name               = var.aws_config.key_name
+  key_name               = local.aws_config.key_name
   ami_id                 = local.om_config.appdb.ami_id
   instance_type          = local.om_config.appdb.tier
   root_block_device_size = local.om_config.appdb.root_size_gb
@@ -47,15 +50,16 @@ locals {
 module "om_app" {
   source                 = "../modules/ec2"
   instance_name_prefix   = "om"
-  vpc_id                 = var.aws_config.vpc_id
-  subnet_id              = var.aws_config.subnet_id
-  key_name               = var.aws_config.key_name
+  vpc_id                 = local.aws_config.vpc_id
+  subnet_id              = local.aws_config.subnet_id
+  key_name               = local.aws_config.key_name
   ami_id                 = local.om_config.ami_id
   instance_type          = local.om_config.tier
   root_block_device_size = local.om_config.root_size_gb
   instance_count         = local.om_config.instance_count
   tags                   = local.tags
   iam_instance_profile   = "s3_full_access"
+  depends_on             = [aws_key_pair.vm, null_resource.prerequisites]
   ingress_rules = [
     {
       description = "HTTP 8080 access"

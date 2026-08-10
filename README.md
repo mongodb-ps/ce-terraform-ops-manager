@@ -35,65 +35,40 @@ I tried to make everything autowired so you only need to fill some necessary inf
 All the important variables are described below. You can find in `1-om/variables.tf` all the other variables and instructions.
 
 #### aws_config
-##### aws_config.region
-_Required_  
-AWS region that you want to create the environment.
+| Field        | Required | Description                                                                                                                                                                                                               |
+| ------------ | -------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `region`     | Yes      | AWS region that you want to create the environment.                                                                                                                                                                       |
+| `vpc_id`     | No       | The VPC ID that you want to host the environment. Leave empty to let Terraform create a VPC with a public subnet automatically. If provided, the VPC must exist and can assign public IP addresses for the EC2 instances. |
+| `subnet_id`  | No       | The subnet where you want to create the EC2 instances. Leave empty to let Terraform create a public subnet automatically. Must be provided together with `vpc_id`.                                                        |
+| `key_name`   | No       | The AWS key pair that will be assigned to all the EC2 instances. When not provided, the local part of `email` (before `@`) is used. The local public key at `~/.ssh/<key_name>.pub` must exist, otherwise the plan fails. Terraform creates the key pair on AWS; if it already exists but is not in the Terraform state, import it once with `terraform import aws_key_pair.vm <key_name>`. |
 
-##### aws_config.vpc_id
-_Required_  
-The VPC ID that you want to host the environmenbt. The VPC must exist and can assign public IP addess for the EC2 instances.
-
-##### aws_config.sub_net
-_Required_  
-The subnet where you want to create the EC2 instances. The subnet must exist.
-
-##### aws_config.key_name
-_Required_  
-The AWS key pair that will be assigned to all the EC2 instances. You can use the key to ssh the instances.
+#### email
+| Field   | Required | Description                                                                                                                                                                                                |
+| ------- | -------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `email` | No       | Your email. It fills `tags.owner` and the first Ops Manager user's email. When not provided, it is derived from the ARN of your AWS identity (same value as `aws sts get-caller-identity`).                |
 
 #### tags
-##### tags.owner
-_Required_  
-Your MongoDB email.
-
-##### tags.expire-on
-_Optional_  
-Use empty string auto fill a date that represents 3 days later. Otherwise please fill in the format of: `yyyy-MM-dd`.
-
-##### tags.project-id
-_Optional_  
-Defaults to `internal`. You have responsibility to fill the real PS project ID from Salesforce. The format is: `PS-<project ID>`.
+| Field        | Required | Description                                                                                                                       |
+| ------------ | -------- | --------------------------------------------------------------------------------------------------------------------------------- |
+| `owner`      | No       | Filled from the `email` variable.                                                                                                 |
+| `expire-on`  | No       | Use empty string auto fill a date that represents 3 days later. Otherwise please fill in the format of: `yyyy-MM-dd`.             |
+| `project-id` | No       | Defaults to `internal`. You have responsibility to fill the real PS project ID from Salesforce. The format is: `PS-<project ID>`. |
 
 #### backing_db_credentials
-##### backing_db_credentials.name
-_Required_  
-Name of user that will be created in all backing databases as `root` user. Including:
-- AppDB
-- Oplog/Block store
-- S3 metadata store
-
-##### backing_db_credentials.pwd
-_Required_  
-Password for the user above.
+| Field  | Required | Description                                                                                                                           |
+| ------ | -------- | ------------------------------------------------------------------------------------------------------------------------------------- |
+| `name` | Yes      | Name of user that will be created in all backing databases as `root` user. Including AppDB, Oplog/Block store, and S3 metadata store. |
+| `pwd`  | Yes      | Password for the user above.                                                                                                          |
 
 #### first_user
 The first Ops Manager user. This will be the Ops Manager admin.
 
-##### first_user.email
-_Required_  
-Email of the user.
-
-##### first_user.pwd
-_Required_  
-Password of the user.
-
-##### first_user.fistName
-_Required_  
-User's first name.
-
-##### first_user.pwd
-_Required_  
-User's last name.
+| Field       | Required | Description                                                              |
+| ----------- | -------- | ------------------------------------------------------------------------ |
+| `email`     | No       | Email of the user. When not provided, filled from the `email` variable.  |
+| `pwd`       | Yes      | Password of the user.                                                    |
+| `firstName` | Yes      | User's first name.                                                       |
+| `lastName`  | Yes      | User's last name.                                                        |
 
 ### 3.2 Deploy Ops Manager
 #### AWS Credentials

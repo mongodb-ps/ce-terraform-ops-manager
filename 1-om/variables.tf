@@ -2,31 +2,45 @@ variable "aws_config" {
   description = <<-EOT
     Configuration options for AWS.
 
-    | Field | Description |
-    | --- | --- |
-    | `region` | AWS region. |
-    | `vpc_id` | ID of the existing VPC where EC2 instances will be created. |
-    | `subnet_id` | ID of the existing subnet within the VPC where EC2 instances will be created. |
-    | `key_name` | Name of the AWS key pair Terraform creates for the EC2 instances. |
-    | `public_key` | Public-key filename under `~/.ssh` used to create the AWS key pair. |
+    | Field       | Description                                                                                    |
+    | ----------- | ---------------------------------------------------------------------------------------------- |
+    | `region`    | AWS region.                                                                                    |
+    | `vpc_id`    | ID of the existing VPC where EC2 instances will be created. When null, a VPC is created.       |
+    | `subnet_id` | ID of the existing subnet where EC2 instances will be created. When null, a subnet is created. |
+    | `key_name`  | Name of the AWS key pair. When null, the local part of the `email` (before `@`) is used. The local public key at `~/.ssh/<key_name>.pub` must exist, otherwise the plan fails. Terraform creates the key pair on AWS; if it already exists but is not in the Terraform state, import it once with `terraform import aws_key_pair.vm <key_name>`. |
   EOT
   type = object({
-    region     = string
-    vpc_id     = string
-    subnet_id  = string
-    key_name   = string
-    public_key = string
+    region    = string
+    vpc_id    = optional(string)
+    subnet_id = optional(string)
+    key_name  = optional(string)
   })
+  validation {
+    condition     = (var.aws_config.vpc_id != null && var.aws_config.subnet_id != null) || (var.aws_config.vpc_id == null && var.aws_config.subnet_id == null)
+    error_message = "vpc_id and subnet_id must either both be provided (existing VPC) or both be omitted (a VPC and subnet are created automatically)."
+  }
 }
+variable "email" {
+  description = <<-EOT
+    Email address used to fill `tags.owner` and the email of the first Ops Manager user.
+
+    When not provided, the email is derived from the ARN of the AWS identity running Terraform
+    (the same value returned by `aws sts get-caller-identity`), for example
+    `arn:aws:iam::123456789012:user/joe@example.com`.
+  EOT
+  type        = string
+  default     = null
+}
+
 variable "tags" {
   description = <<-EOT
     Tags for all resources.
 
-    | Key | Description |
-    | --- | --- |
-    | `owner` | Your email address. |
-    | `expire-on` | Expiration date. Leave empty to use three days from creation. |
-    | `project-id` | Project ID in the format `PS-xxxxxx`. |
+    | Key          | Description                                                   |
+    | ------------ | ------------------------------------------------------------- |
+    | `owner`      | Filled from the `email` variable.                             |
+    | `expire-on`  | Expiration date. Leave empty to use three days from creation. |
+    | `project-id` | Project ID in the format `PS-xxxxxx`.                         |
   EOT
   type        = map(string)
   default = {
@@ -40,23 +54,23 @@ variable "om_config" {
   description = <<-EOT
     Configuration options for Ops Manager.
 
-    | Field | Description |
-    | --- | --- |
-    | `ami_id` | EC2 AMI ID for the Ops Manager application servers. When null, `default_ami_id` is used. |
-    | `download_url` | Download URL for the Ops Manager package. |
-    | `tier` | EC2 instance type for the Ops Manager application servers. |
-    | `root_size_gb` | Root volume size in GB for the Ops Manager application servers. |
-    | `instance_count` | Number of Ops Manager application server instances. |
-    | `backup_type` | Backup store type. Valid options are `s3`, `mongo`, `fileSystem`, and `none`. |
-    | `appdb.ami_id` | EC2 AMI ID for the Ops Manager application database. When null, `default_ami_id` is used. |
-    | `appdb.tier` | EC2 instance type for the Ops Manager application database. |
-    | `appdb.version` | MongoDB major and minor version for the Ops Manager application database, for example `8.0`. |
-    | `appdb.root_size_gb` | Root volume size in GB for the Ops Manager application database. |
-    | `backing_db.ami_id` | EC2 AMI ID for the Ops Manager backing database. When null, `default_ami_id` is used. |
-    | `backing_db.version` | Full MongoDB version for the Ops Manager backing database, for example `8.0.16-ent`. |
-    | `backing_db.tier` | EC2 instance type for the Ops Manager backing database. |
-    | `backing_db.root_size_gb` | Root volume size in GB for the Ops Manager backing database. |
-    | `backing_db.instance_count` | Number of instances in the Ops Manager backing database replica set. |
+    | Field                       | Description                                                                                  |
+    | --------------------------- | -------------------------------------------------------------------------------------------- |
+    | `ami_id`                    | EC2 AMI ID for the Ops Manager application servers. When null, `default_ami_id` is used.     |
+    | `download_url`              | Download URL for the Ops Manager package.                                                    |
+    | `tier`                      | EC2 instance type for the Ops Manager application servers.                                   |
+    | `root_size_gb`              | Root volume size in GB for the Ops Manager application servers.                              |
+    | `instance_count`            | Number of Ops Manager application server instances.                                          |
+    | `backup_type`               | Backup store type. Valid options are `s3`, `mongo`, `fileSystem`, and `none`.                |
+    | `appdb.ami_id`              | EC2 AMI ID for the Ops Manager application database. When null, `default_ami_id` is used.    |
+    | `appdb.tier`                | EC2 instance type for the Ops Manager application database.                                  |
+    | `appdb.version`             | MongoDB major and minor version for the Ops Manager application database, for example `8.0`. |
+    | `appdb.root_size_gb`        | Root volume size in GB for the Ops Manager application database.                             |
+    | `backing_db.ami_id`         | EC2 AMI ID for the Ops Manager backing database. When null, `default_ami_id` is used.        |
+    | `backing_db.version`        | Full MongoDB version for the Ops Manager backing database, for example `8.0.16-ent`.         |
+    | `backing_db.tier`           | EC2 instance type for the Ops Manager backing database.                                      |
+    | `backing_db.root_size_gb`   | Root volume size in GB for the Ops Manager backing database.                                 |
+    | `backing_db.instance_count` | Number of instances in the Ops Manager backing database replica set.                         |
   EOT
   type = object({
     ami_id         = string
@@ -106,12 +120,12 @@ variable "test_instance_config" {
   description = <<-EOT
     Configuration options for test instances.
 
-    | Field | Description |
-    | --- | --- |
-    | `ami_id` | EC2 AMI ID for the test instances. |
-    | `tier` | EC2 instance type for the test instances. |
-    | `root_size_gb` | Root volume size in GB for the test instances. |
-    | `instance_count` | Number of test instances. |
+    | Field            | Description                                    |
+    | ---------------- | ---------------------------------------------- |
+    | `ami_id`         | EC2 AMI ID for the test instances.             |
+    | `tier`           | EC2 instance type for the test instances.      |
+    | `root_size_gb`   | Root volume size in GB for the test instances. |
+    | `instance_count` | Number of test instances.                      |
   EOT
   type = object({
     ami_id         = string
@@ -137,9 +151,9 @@ variable "s3_config" {
   description = <<-EOT
     Configuration options for S3.
 
-    | Field | Description |
-    | --- | --- |
-    | `prefix` | Bucket prefix. When null, the owner name is used. |
+    | Field      | Description                                                                       |
+    | ---------- | --------------------------------------------------------------------------------- |
+    | `prefix`   | Bucket prefix. When null, the owner name is used.                                 |
     | `endpoint` | S3 endpoint. When null, the endpoint is generated from the configured AWS region. |
   EOT
   type = object({
@@ -156,10 +170,10 @@ variable "backing_db_credentials" {
   description = <<-EOT
     Ops Manager backing database credentials.
 
-    | Field | Description |
-    | --- | --- |
+    | Field  | Description                                                                                         |
+    | ------ | --------------------------------------------------------------------------------------------------- |
     | `name` | Username for the Ops Manager backing databases, including the application database and oplog store. |
-    | `pwd` | Password for the Ops Manager backing databases, including the application database and oplog store. |
+    | `pwd`  | Password for the Ops Manager backing databases, including the application database and oplog store. |
   EOT
   sensitive   = true
   type = object({
@@ -169,10 +183,19 @@ variable "backing_db_credentials" {
 }
 
 variable "first_user" {
-  description = "First user credentials for Ops Manager"
+  description = <<-EOT
+    Credentials for the first Ops Manager user, who will be the Ops Manager admin.
+
+    | Field       | Description                                                            |
+    | ----------- | ---------------------------------------------------------------------- |
+    | `email`     | Email of the user. When not provided, filled from the `email` variable. |
+    | `pwd`       | Password of the user.                                                  |
+    | `firstName` | User's first name.                                                     |
+    | `lastName`  | User's last name.                                                      |
+  EOT
   sensitive   = true
   type = object({
-    email     = string
+    email     = optional(string)
     pwd       = string
     firstName = string
     lastName  = string
