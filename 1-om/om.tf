@@ -2,19 +2,16 @@ data "http" "my_ip" {
   url = "https://ifconfig.me/ip"
 }
 
-resource "null_resource" "prerequisites" {
-  triggers = {
-    always_run = timestamp()
-  }
-
-  provisioner "local-exec" {
-    command = "bash ${path.root}/../scripts/check-prerequisites.sh"
-  }
+# Runs at plan time (data sources are read during the refresh phase), so a failing
+# prerequisites check aborts the plan before anything is created or modified.
+data "external" "prerequisites" {
+  program = ["bash", "-c", "bash ${path.root}/../scripts/check-prerequisites.sh '${local.aws_config.key_name}' >/dev/null && printf '{\"ok\":\"true\"}'"]
 }
 
-# The local public key must already exist at ~/.ssh/<key_name>.pub, otherwise the plan
-# fails. Terraform creates the key pair on AWS; if it already exists there but is not in
-# the Terraform state, import it once with: terraform import aws_key_pair.vm <key_name>
+# check-prerequisites.sh (data.external.prerequisites) verifies that the local key pair
+# exists at ~/.ssh/<key_name> and ~/.ssh/<key_name>.pub, otherwise the plan fails.
+# Terraform creates the key pair on AWS; if it already exists there but is not in the
+# Terraform state, import it once with: terraform import aws_key_pair.vm <key_name>
 resource "aws_key_pair" "vm" {
   key_name   = local.aws_config.key_name
   public_key = file(pathexpand("~/.ssh/${local.aws_config.key_name}.pub"))
@@ -33,7 +30,7 @@ module "om_appdb" {
   instance_type          = local.om_config.appdb.tier
   root_block_device_size = local.om_config.appdb.root_size_gb
 
-  depends_on = [aws_key_pair.vm, null_resource.prerequisites]
+  depends_on = [aws_key_pair.vm, data.external.prerequisites]
 
   init_script = templatefile("${path.root}/../init-scripts/appdb-init.sh", {
     OM_APPDB_USER     = local.backing_db_credentials.name,
@@ -59,7 +56,7 @@ module "om_app" {
   instance_count         = local.om_config.instance_count
   tags                   = local.tags
   iam_instance_profile   = "s3_full_access"
-  depends_on             = [aws_key_pair.vm, null_resource.prerequisites]
+  depends_on             = [aws_key_pair.vm, data.external.prerequisites]
   ingress_rules = [
     {
       description = "HTTP 8080 access"

@@ -7,7 +7,7 @@ variable "aws_config" {
     | `region`    | AWS region.                                                                                    |
     | `vpc_id`    | ID of the existing VPC where EC2 instances will be created. When null, a VPC is created.       |
     | `subnet_id` | ID of the existing subnet where EC2 instances will be created. When null, a subnet is created. |
-    | `key_name`  | Name of the AWS key pair. When null, the local part of the `email` (before `@`) is used. The local public key at `~/.ssh/<key_name>.pub` must exist, otherwise the plan fails. Terraform creates the key pair on AWS; if it already exists but is not in the Terraform state, import it once with `terraform import aws_key_pair.vm <key_name>`. |
+    | `key_name`  | Name of the AWS key pair. When null, the local part of the `email` (before `@`) is used. The local key pair must exist at `~/.ssh/<key_name>` and `~/.ssh/<key_name>.pub`, otherwise the plan fails. Terraform creates the key pair on AWS; if it already exists but is not in the Terraform state, import it once with `terraform import aws_key_pair.vm <key_name>`. |
   EOT
   type = object({
     region    = string
