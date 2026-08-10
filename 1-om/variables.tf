@@ -57,7 +57,7 @@ variable "om_config" {
     | Field                       | Description                                                                                  |
     | --------------------------- | -------------------------------------------------------------------------------------------- |
     | `ami_id`                    | EC2 AMI ID for the Ops Manager application servers. When null, `default_ami_id` is used.     |
-    | `download_url`              | Download URL for the Ops Manager package.                                                    |
+    | `version`                   | Ops Manager version, for example `8.0.16`. The download URL is resolved from the Ops Manager release archive: the newest package whose name contains `version`. When null, the newest available package is used. |
     | `tier`                      | EC2 instance type for the Ops Manager application servers.                                   |
     | `root_size_gb`              | Root volume size in GB for the Ops Manager application servers.                              |
     | `instance_count`            | Number of Ops Manager application server instances.                                          |
@@ -74,7 +74,7 @@ variable "om_config" {
   EOT
   type = object({
     ami_id         = string
-    download_url   = string
+    version        = optional(string)
     tier           = string
     root_size_gb   = number
     instance_count = number
@@ -94,7 +94,6 @@ variable "om_config" {
     })
   })
   default = {
-    download_url   = "https://downloads.mongodb.com/on-prem-mms/deb/mongodb-mms-8.0.16.500.20251105T1415Z.amd64.deb"
     ami_id         = null
     tier           = "t3.xlarge"
     root_size_gb   = 50

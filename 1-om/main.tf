@@ -47,8 +47,26 @@ locals {
     name = var.backing_db_credentials.name != null ? var.backing_db_credentials.name : "root"
     pwd  = var.backing_db_credentials.pwd != null ? var.backing_db_credentials.pwd : random_password.backing_db[0].result
   }
+  # Resolve the Ops Manager package download URL from the release archive page:
+  # the newest package whose name contains om_config.version, or the newest
+  # overall when no version is provided. Only the main Ops Manager package in the
+  # current naming scheme (mongodb-mms-<major>.<minor>.<patch>.<build>.<timestamp>.amd64.deb)
+  # is considered; legacy 1.x-5.x and mongodb-mms-backup-daemon links are excluded.
+  om_deb_urls = distinct(regexall("https://downloads\\.mongodb\\.com/on-prem-mms/deb/mongodb-mms-(?:[0-9]+)\\.(?:[0-9]+)\\.(?:[0-9]+)\\.(?:[0-9]+)\\.(?:[0-9TZ]+)\\.amd64\\.deb", data.http.om_releases.response_body))
+  om_deb_parsed = [for u in local.om_deb_urls : {
+    url  = u
+    caps = regex("mongodb-mms-([0-9]+)\\.([0-9]+)\\.([0-9]+)\\.([0-9]+)\\.([0-9TZ]+)\\.amd64\\.deb$", u)
+  }]
+  # Zero-pad the numeric components so lexicographic order matches version order.
+  om_deb_by_key = {
+    for p in local.om_deb_parsed :
+    format("%03d.%03d.%03d.%03d.%s", tonumber(p.caps[0]), tonumber(p.caps[1]), tonumber(p.caps[2]), tonumber(p.caps[3]), p.caps[4]) => p.url
+  }
+  om_deb_candidates = var.om_config.version != null ? { for k, v in local.om_deb_by_key : k => v if strcontains(v, var.om_config.version) } : local.om_deb_by_key
+  om_deb_url        = local.om_deb_candidates[element(sort(keys(local.om_deb_candidates)), -1)]
   om_config = merge(var.om_config, {
-    ami_id = var.om_config.ami_id != null ? var.om_config.ami_id : var.default_ami_id,
+    ami_id       = var.om_config.ami_id != null ? var.om_config.ami_id : var.default_ami_id,
+    download_url = local.om_deb_url,
     appdb = merge(var.om_config.appdb, {
       ami_id = var.om_config.appdb.ami_id != null ? var.om_config.appdb.ami_id : var.default_ami_id,
     }),

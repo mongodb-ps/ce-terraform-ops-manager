@@ -2,6 +2,12 @@ data "http" "my_ip" {
   url = "https://ifconfig.me/ip"
 }
 
+# Ops Manager release archive: the download URL for the Ops Manager package is
+# resolved from the deb links on this page (see the om_deb_* locals in main.tf).
+data "http" "om_releases" {
+  url = "https://www.mongodb.com/try/download/ops-manager/releases/archive"
+}
+
 # Runs at plan time (data sources are read during the refresh phase), so a failing
 # prerequisites check aborts the plan before anything is created or modified.
 data "external" "prerequisites" {
