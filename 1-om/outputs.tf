@@ -1,5 +1,5 @@
 output "backing_db_credentials" {
-  value = var.backing_db_credentials
+  value     = local.backing_db_credentials
   sensitive = true
 }
 

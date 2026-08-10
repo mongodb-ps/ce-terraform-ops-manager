@@ -4,6 +4,14 @@ data "aws_caller_identity" "current" {
   count = var.email != null ? 0 : 1
 }
 
+# Random password used when backing_db_credentials.pwd is not provided.
+# Alphanumeric only: the password is embedded in single-quoted shell scripts.
+resource "random_password" "backing_db" {
+  count   = var.backing_db_credentials.pwd == null ? 1 : 0
+  length  = 24
+  special = false
+}
+
 locals {
   email = var.email != null ? var.email : regex(".*/([^/]+)$", data.aws_caller_identity.current[0].arn)[0]
   # If key_name is not provided, use the local part of the email (before @)
@@ -21,6 +29,10 @@ locals {
     vpc_id    = var.aws_config.vpc_id != null ? var.aws_config.vpc_id : aws_vpc.om[0].id
     subnet_id = var.aws_config.subnet_id != null ? var.aws_config.subnet_id : aws_subnet.om[0].id
   })
+  backing_db_credentials = {
+    name = var.backing_db_credentials.name != null ? var.backing_db_credentials.name : "root"
+    pwd  = var.backing_db_credentials.pwd != null ? var.backing_db_credentials.pwd : random_password.backing_db[0].result
+  }
   om_config = merge(var.om_config, {
     ami_id = var.om_config.ami_id != null ? var.om_config.ami_id : var.default_ami_id,
     appdb = merge(var.om_config.appdb, {
@@ -42,7 +54,7 @@ resource "local_file" "vars_json" {
   filename = "${path.root}/../stage-1-output.json"
   content = jsonencode({
     first_user             = local.first_user
-    backing_db_credentials = var.backing_db_credentials
+    backing_db_credentials = local.backing_db_credentials
     tags                   = local.tags
     aws_config             = local.aws_config
     om_config              = local.om_config

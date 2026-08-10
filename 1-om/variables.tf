@@ -168,18 +168,19 @@ variable "s3_config" {
 
 variable "backing_db_credentials" {
   description = <<-EOT
-    Ops Manager backing database credentials.
+    Credentials for the Ops Manager backing databases, including the application database and oplog store.
 
-    | Field  | Description                                                                                         |
-    | ------ | --------------------------------------------------------------------------------------------------- |
-    | `name` | Username for the Ops Manager backing databases, including the application database and oplog store. |
-    | `pwd`  | Password for the Ops Manager backing databases, including the application database and oplog store. |
+    | Field  | Description                                                                                        |
+    | ------ | -------------------------------------------------------------------------------------------------- |
+    | `name` | Username for the Ops Manager backing databases. When not provided, `root` is used.                 |
+    | `pwd`  | Password for the Ops Manager backing databases. When not provided, a random one is generated.      |
   EOT
   sensitive   = true
   type = object({
-    name = string
-    pwd  = string
+    name = optional(string)
+    pwd  = optional(string)
   })
+  default = {}
 }
 
 variable "first_user" {

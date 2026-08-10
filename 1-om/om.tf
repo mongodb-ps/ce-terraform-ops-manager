@@ -36,8 +36,8 @@ module "om_appdb" {
   depends_on = [aws_key_pair.vm, null_resource.prerequisites]
 
   init_script = templatefile("${path.root}/../init-scripts/appdb-init.sh", {
-    OM_APPDB_USER     = var.backing_db_credentials.name,
-    OM_APPDB_PASSWORD = var.backing_db_credentials.pwd,
+    OM_APPDB_USER     = local.backing_db_credentials.name,
+    OM_APPDB_PASSWORD = local.backing_db_credentials.pwd,
     OM_APPDB_VERSION  = local.om_config.appdb.version,
     WHITELIST_CIDR    = data.http.my_ip.response_body
   })
@@ -79,8 +79,8 @@ module "om_app" {
   init_script = templatefile("${path.root}/../init-scripts/om-init.sh", {
     OM_DOWNLOAD_URL   = local.om_config.download_url,
     OM_APPDB_HOSTS    = local.appdb_hosts_str,
-    OM_APPDB_USER     = var.backing_db_credentials.name,
-    OM_APPDB_PASSWORD = var.backing_db_credentials.pwd
+    OM_APPDB_USER     = local.backing_db_credentials.name,
+    OM_APPDB_PASSWORD = local.backing_db_credentials.pwd
   })
 }
 

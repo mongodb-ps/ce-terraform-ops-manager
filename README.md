@@ -55,10 +55,10 @@ All the important variables are described below. You can find in `1-om/variables
 | `project-id` | No       | Defaults to `internal`. You have responsibility to fill the real PS project ID from Salesforce. The format is: `PS-<project ID>`. |
 
 #### backing_db_credentials
-| Field  | Required | Description                                                                                                                           |
-| ------ | -------- | ------------------------------------------------------------------------------------------------------------------------------------- |
-| `name` | Yes      | Name of user that will be created in all backing databases as `root` user. Including AppDB, Oplog/Block store, and S3 metadata store. |
-| `pwd`  | Yes      | Password for the user above.                                                                                                          |
+| Field  | Required | Description                                                                                                                                               |
+| ------ | -------- | --------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `name` | No       | Name of user that will be created in all backing databases as `root` user. Including AppDB, Oplog/Block store, and S3 metadata store. When not provided, `root` is used. |
+| `pwd`  | No       | Password for the user above. When not provided, a random alphanumeric password is generated.                                                              |
 
 #### first_user
 The first Ops Manager user. This will be the Ops Manager admin.
