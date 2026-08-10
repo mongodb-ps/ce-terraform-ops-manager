@@ -63,12 +63,12 @@ All the important variables are described below. You can find in `1-om/variables
 #### first_user
 The first Ops Manager user. This will be the Ops Manager admin.
 
-| Field       | Required | Description                                                              |
-| ----------- | -------- | ------------------------------------------------------------------------ |
-| `email`     | No       | Email of the user. When not provided, filled from the `email` variable.  |
-| `pwd`       | Yes      | Password of the user.                                                    |
-| `firstName` | Yes      | User's first name.                                                       |
-| `lastName`  | Yes      | User's last name.                                                        |
+| Field       | Required | Description                                                                                                                            |
+| ----------- | -------- | -------------------------------------------------------------------------------------------------------------------------------------- |
+| `email`     | No       | Email of the user. When not provided, filled from the `email` variable.                                                                |
+| `pwd`       | Yes      | Password of the user.                                                                                                                  |
+| `firstName` | No       | First name of the user. When not provided, derived from the local part of `email`: the part before the first `.`, or the whole local part when there is no `.`. |
+| `lastName`  | No       | Last name of the user. When not provided, derived from the local part of `email`: the part after the first `.`, or `Doe` when there is no `.`.                 |
 
 ### 3.2 Deploy Ops Manager
 #### AWS Credentials

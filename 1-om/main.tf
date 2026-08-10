@@ -45,8 +45,13 @@ locals {
   test_instance_config = merge(var.test_instance_config, {
     ami_id = var.test_instance_config.ami_id != null ? var.test_instance_config.ami_id : var.default_ami_id,
   })
+  # Derive firstName/lastName from the local part of the email (before @), split on ".":
+  # the first part is the first name and the rest the last name; "Doe" when no ".".
+  name_parts = split(".", split("@", local.email)[0])
   first_user = merge(var.first_user, {
-    email = var.first_user.email != null ? var.first_user.email : local.email
+    email     = var.first_user.email != null ? var.first_user.email : local.email
+    firstName = var.first_user.firstName != null ? var.first_user.firstName : local.name_parts[0]
+    lastName  = var.first_user.lastName != null ? var.first_user.lastName : length(local.name_parts) > 1 ? join(".", slice(local.name_parts, 1, length(local.name_parts))) : "Doe"
   })
 }
 

@@ -187,18 +187,18 @@ variable "first_user" {
   description = <<-EOT
     Credentials for the first Ops Manager user, who will be the Ops Manager admin.
 
-    | Field       | Description                                                            |
-    | ----------- | ---------------------------------------------------------------------- |
-    | `email`     | Email of the user. When not provided, filled from the `email` variable. |
-    | `pwd`       | Password of the user.                                                  |
-    | `firstName` | User's first name.                                                     |
-    | `lastName`  | User's last name.                                                      |
+    | Field       | Description                                                                                                                                                          |
+    | ----------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+    | `email`     | Email of the user. When not provided, filled from the `email` variable.                                                                                              |
+    | `pwd`       | Password of the user.                                                                                                                                                |
+    | `firstName` | First name of the user. When not provided, derived from the local part of `email`: the part before the first `.`, or the whole local part when there is no `.`.      |
+    | `lastName`  | Last name of the user. When not provided, derived from the local part of `email`: the part after the first `.`, or `Doe` when there is no `.`.                       |
   EOT
   sensitive   = true
   type = object({
     email     = optional(string)
     pwd       = string
-    firstName = string
-    lastName  = string
+    firstName = optional(string)
+    lastName  = optional(string)
   })
 }
