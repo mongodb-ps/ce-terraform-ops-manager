@@ -32,17 +32,17 @@ Due to the limitation of Terraform, I can't do everything in 1 phase. You need t
 Everything is autowired: only `aws_config.region` is required, every other variable has a default or is derived automatically. The variables below let you customize the deployment. You can find in `1-om/variables.tf` all the other variables and instructions.
 
 #### aws_config
-| Field        | Required | Description                                                                                                                                                                                                               |
-| ------------ | -------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `region`     | Yes      | AWS region that you want to create the environment.                                                                                                                                                                       |
-| `vpc_id`     | No       | The VPC ID that you want to host the environment. Leave empty to let Terraform create a VPC with a public subnet automatically. If provided, the VPC must exist and can assign public IP addresses for the EC2 instances. |
-| `subnet_id`  | No       | The subnet where you want to create the EC2 instances. Leave empty to let Terraform create a public subnet automatically. Must be provided together with `vpc_id`.                                                        |
-| `key_name`   | No       | The AWS key pair that will be assigned to all the EC2 instances. When not provided, the local part of `email` (before `@`) is used. The local key pair must exist at `~/.ssh/<key_name>` and `~/.ssh/<key_name>.pub`, otherwise the plan fails. Terraform creates the key pair on AWS; if it already exists but is not in the Terraform state, import it once with `terraform import aws_key_pair.vm <key_name>`. |
+| Field       | Required | Description                                                                                                                                                                                                                                                                                                                                                                                                       |
+| ----------- | -------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `region`    | Yes      | AWS region that you want to create the environment.                                                                                                                                                                                                                                                                                                                                                               |
+| `vpc_id`    | No       | The VPC ID that you want to host the environment. Leave empty to let Terraform create a VPC with a public subnet automatically. If provided, the VPC must exist and can assign public IP addresses for the EC2 instances.                                                                                                                                                                                         |
+| `subnet_id` | No       | The subnet where you want to create the EC2 instances. Leave empty to let Terraform create a public subnet automatically. Must be provided together with `vpc_id`.                                                                                                                                                                                                                                                |
+| `key_name`  | No       | The AWS key pair that will be assigned to all the EC2 instances. When not provided, the local part of `email` (before `@`) is used. The local key pair must exist at `~/.ssh/<key_name>` and `~/.ssh/<key_name>.pub`, otherwise the plan fails. Terraform creates the key pair on AWS; if it already exists but is not in the Terraform state, import it once with `terraform import aws_key_pair.vm <key_name>`. |
 
 #### email
-| Field   | Required | Description                                                                                                                                                                                                |
-| ------- | -------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `email` | No       | Your email. It fills `tags.owner` and the first Ops Manager user's email. When not provided, it is derived from the ARN of your AWS identity (same value as `aws sts get-caller-identity`).                |
+| Field   | Required | Description                                                                                                                                                                                 |
+| ------- | -------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `email` | No       | Your email. It fills `tags.owner` and the first Ops Manager user's email. When not provided, it is derived from the ARN of your AWS identity (same value as `aws sts get-caller-identity`). |
 
 > **Note:** the ARN must contain a user name (e.g. `arn:aws:iam::123456789012:user/joe@example.com`) for the email to be derived. When the ARN has no user part (e.g. an account root `arn:aws:iam::123456789012:root`), set `email` explicitly or the plan will fail.
 
@@ -54,20 +54,20 @@ Everything is autowired: only `aws_config.region` is required, every other varia
 | `project-id` | No       | Defaults to `internal`. You have responsibility to fill the real PS project ID from Salesforce. The format is: `PS-<project ID>`. |
 
 #### backing_db_credentials
-| Field  | Required | Description                                                                                                                                               |
-| ------ | -------- | --------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `name` | No       | Username for the backing databases (AppDB, Oplog/Block store, and S3 metadata store). When not provided, `root` is used.                                    |
-| `pwd`  | No       | Password for the user above. When not provided, a random alphanumeric password is generated.                                                              |
+| Field  | Required | Description                                                                                                              |
+| ------ | -------- | ------------------------------------------------------------------------------------------------------------------------ |
+| `name` | No       | Username for the backing databases (AppDB, Oplog/Block store, and S3 metadata store). When not provided, `root` is used. |
+| `pwd`  | No       | Password for the user above. When not provided, a random alphanumeric password is generated.                             |
 
 #### first_user
 The first Ops Manager user. This will be the Ops Manager admin.
 
-| Field       | Required | Description                                                                                                                            |
-| ----------- | -------- | -------------------------------------------------------------------------------------------------------------------------------------- |
-| `email`     | No       | Email of the user. When not provided, filled from the `email` variable.                                                                |
-| `pwd`       | No       | Password of the user. When not provided, a random one (8+ characters with upper/lowercase letters, digits and special characters) is generated. |
+| Field       | Required | Description                                                                                                                                                     |
+| ----------- | -------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `email`     | No       | Email of the user. When not provided, filled from the `email` variable.                                                                                         |
+| `pwd`       | No       | Password of the user. When not provided, a random one (8+ characters with upper/lowercase letters, digits and special characters) is generated.                 |
 | `firstName` | No       | First name of the user. When not provided, derived from the local part of `email`: the part before the first `.`, or the whole local part when there is no `.`. |
-| `lastName`  | No       | Last name of the user. When not provided, derived from the local part of `email`: the part after the first `.`, or `Doe` when there is no `.`.                 |
+| `lastName`  | No       | Last name of the user. When not provided, derived from the local part of `email`: the part after the first `.`, or `Doe` when there is no `.`.                  |
 
 ### 3.2 Deploy Ops Manager
 #### AWS Credentials
