@@ -30,9 +30,8 @@ Due to the limitation of Terraform, I can't do everything in 1 phase. You need t
 ## 3 Use the Tool
 **Be aware of the [known issues](#4-known-issues). Some of them can fail the deployment.**
 
-### 3.1 Required Variables
-I tried to make everything autowired so you only need to fill some necessary information. The other variables can let you customize the Ops Manager but they have defaults. 
-All the important variables are described below. You can find in `1-om/variables.tf` all the other variables and instructions.
+### 3.1 Variables
+Everything is autowired: only `aws_config.region` is required, every other variable has a default or is derived automatically. The variables below let you customize the deployment. You can find in `1-om/variables.tf` all the other variables and instructions.
 
 #### aws_config
 | Field        | Required | Description                                                                                                                                                                                                               |
@@ -47,6 +46,8 @@ All the important variables are described below. You can find in `1-om/variables
 | ------- | -------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | `email` | No       | Your email. It fills `tags.owner` and the first Ops Manager user's email. When not provided, it is derived from the ARN of your AWS identity (same value as `aws sts get-caller-identity`).                |
 
+> **Note:** the ARN must contain a user name (e.g. `arn:aws:iam::123456789012:user/joe@example.com`) for the email to be derived. When the ARN has no user part (e.g. an account root `arn:aws:iam::123456789012:root`), set `email` explicitly or the plan will fail.
+
 #### tags
 | Field        | Required | Description                                                                                                                       |
 | ------------ | -------- | --------------------------------------------------------------------------------------------------------------------------------- |
@@ -57,7 +58,7 @@ All the important variables are described below. You can find in `1-om/variables
 #### backing_db_credentials
 | Field  | Required | Description                                                                                                                                               |
 | ------ | -------- | --------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `name` | No       | Name of user that will be created in all backing databases as `root` user. Including AppDB, Oplog/Block store, and S3 metadata store. When not provided, `root` is used. |
+| `name` | No       | Username for the backing databases (AppDB, Oplog/Block store, and S3 metadata store). When not provided, `root` is used.                                    |
 | `pwd`  | No       | Password for the user above. When not provided, a random alphanumeric password is generated.                                                              |
 
 #### first_user
