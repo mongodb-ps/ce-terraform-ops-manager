@@ -38,6 +38,7 @@ terraform.rc
 stage-*.json
 om-*.json
 misc/
+.qwen/
 
 # Ignore python cache
 __pycache__/

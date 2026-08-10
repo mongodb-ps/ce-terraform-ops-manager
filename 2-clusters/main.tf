@@ -14,9 +14,19 @@ locals {
   om_public_key  = local.om_admin.programmaticApiKey.publicKey
   om_private_key = local.om_admin.programmaticApiKey.privateKey
 
-  backup_fcv = "${split(".", local.om_config.backing_db.version)[0]}.0"
+  backup_fcv            = "${split(".", local.om_config.backing_db.version)[0]}.0"
   oplog_store_bucket    = "${local.s3_config.prefix}-oplog-store"
   snapshot_store_bucket = "${local.s3_config.prefix}-snapshot-store"
+}
+
+resource "null_resource" "prerequisites" {
+  triggers = {
+    always_run = timestamp()
+  }
+
+  provisioner "local-exec" {
+    command = "bash ${path.root}/../scripts/check-prerequisites.sh"
+  }
 }
 
 resource "local_file" "vars_json" {

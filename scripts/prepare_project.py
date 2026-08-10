@@ -1,72 +1,100 @@
 """Prepare for guest VM."""
+
 import sys
 import os
 import json
-from om_api import api_get, api_post
+from typing import Optional
+from pyomsdk import OpsManagerClient
 
 params = json.load(sys.stdin)
-# params = json.loads(os.environ["PROJECT_PARAMS_JSON"])
 
-url_prefix = f"{params['url']}/api/public/v1.0"
+url = params["url"]
 public_key = params["public_key"]
 private_key = params["private_key"]
 org_name = params.get("org_name", "Default Organization")
 project_name = params.get("project_name", "Default Project")
-state_file  = params.get("state_file", "../stage-2-output.json")
+state_file = params.get("state_file", "../stage-2-output.json")
+
+client = OpsManagerClient(url, public_key, private_key)
 
 # Create organization if it does not exist.
-org_url = f"{url_prefix}/orgs"
-orgs_response = api_get(org_url, public_key, private_key, {})
-if orgs_response.status_code != 200:
-    raise Exception(f"Failed to get orgs: {orgs_response.text}")
+orgs_response = client.organizations_resource.get_all_organizations(query_params=None)
+assert "error" not in orgs_response, f"Can't retrieve organizations: {str(orgs_response)}"
+orgs = orgs_response.get("results", [])
+org_id: Optional[str] = next(
+    (
+        org["id"]
+        for org in orgs
+        if org["name"] == org_name and org.get("isDeleted") is False
+    ),
+    None,
+)
 
-orgs = orgs_response.json().get("results", [])
-org_id = None
-for org in orgs:
-    if org["name"] == org_name and org["isDeleted"] is False:
-        org_id = org["id"]
-if not org_id:
-    new_org_response = api_post(org_url, public_key, private_key, {"name": org_name})
-    org_id = new_org_response.json().get("id")
+if org_id is None:
+    new_org = client.organizations_resource.create_organization(
+        query_params=None,
+        body_params=client.organizations_resource.CreateOrganizationBodyParams(
+            name=org_name,
+        ),
+    )
+    org_id = new_org["id"]
 
 # Create project if it does not exist.
-project_url = f"{url_prefix}/groups"
-project_get_url = f"{url_prefix}/groups/byName/{project_name}"
-project_id = None
-project_response = api_get(project_get_url, public_key, private_key, {})
-if project_response.status_code != 200:
-    project_response = api_post(project_url, public_key, private_key, {
-        "name": project_name,
-        "orgId": org_id
-    })
-project = project_response.json()
-project_id = project.get("id")
-agent_key = project.get("agentApiKey", None)
+project_id: Optional[str] = None
+agent_key: Optional[str] = None
+project_response = client.projects_resource.get_by_name(
+    path_params=client.projects_resource.GetByNamePathParams(
+        group_name=project_name,
+    ),
+    query_params=None,
+)
+if project_response.get("error", None) == 404:
+    assert org_id is not None, (
+        "Organization ID should not be None when creating a project."
+    )
+    project_response = client.projects_resource.create(
+        query_params=None,
+        body_params=client.projects_resource.CreateBodyParams(
+            name=project_name,
+            org_id=org_id,
+        ),
+    )
 
+project_id = project_response.get("id", None)
+agent_key = project_response.get("agentApiKey")
+
+assert project_id is not None, (
+    "Project ID should not be None after creation or retrieval."
+)
 if not agent_key:
-    # Check if the output file exists. If yes, read the agent API key from it.
-    output_file = state_file
     data = {}
-    if os.path.exists(output_file):
-        with open(output_file, "r", encoding="utf-8") as f:
+    if os.path.exists(state_file):
+        with open(state_file, "r", encoding="utf-8") as f:
             data = json.load(f)
             if project_name in data:
                 agent_key = data[project_name]["agent_api_key"]
     if not agent_key:
-        # Create agent API key for the project.
-        agent_url = f"{url_prefix}/groups/{project_id}/agentapikeys"
-        agent_key_response = api_post(agent_url, public_key, private_key, {
-            "desc": "API key for automation agents."
-        })
-        agent_key = agent_key_response.json().get("key")
+        agent_response = client.agents_resource.create_api_key(
+            path_params=client.agents_resource.CreateApiKeyPathParams(
+                project_id=project_id,
+            ),
+            query_params=None,
+            body_params=client.agents_resource.CreateApiKeyBodyParams(
+                desc="API key for automation agents.",
+            ),
+        )
+        agent_key = agent_response.get("key")
 
-automation_url = f"{url_prefix}/softwareComponents/versions"
-automation_response = api_get(automation_url, public_key, private_key, {})
-agent_version = automation_response.json().get("automationVersion")
+versions_response = client.agents_resource.retrieve_all_versions(query_params=None)
+agent_version = versions_response.get("automationVersion")
 
-print(json.dumps({
-    "org_id": org_id,
-    "project_id": project_id,
-    "agent_api_key": agent_key,
-    "agent_version": agent_version
-}))
+print(
+    json.dumps(
+        {
+            "org_id": org_id,
+            "project_id": project_id,
+            "agent_api_key": agent_key,
+            "agent_version": agent_version,
+        }
+    )
+)

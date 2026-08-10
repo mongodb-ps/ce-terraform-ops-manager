@@ -1,0 +1,51 @@
+{
+    "version": "0.2.0",
+    "configurations": [
+        {
+            "name": "Debug: prepare_project",
+            "type": "debugpy",
+            "request": "launch",
+            "program": "${workspaceFolder}/scripts/test_helper.py",
+            "args": [
+                "--url",
+                "--public-key",
+                "--private-key",
+                "--org-name",
+                "TestOrg",
+                "--project-name",
+                "TestProject",
+                "${workspaceFolder}/scripts/prepare_project.py"
+            ],
+            "cwd": "${workspaceFolder}",
+            "console": "integratedTerminal",
+            "subProcess": true,
+            "redirectOutput": true
+        },
+        {
+            "name": "Debug: test_helper_env (export)",
+            "type": "debugpy",
+            "request": "launch",
+            "program": "${workspaceFolder}/scripts/test_helper_env.py",
+            "args": [
+                "--url",
+                "--public-key",
+                "--private-key",
+                "--org-name",
+                "TestOrg",
+                "--project-name",
+                "TestProject"
+            ],
+            "cwd": "${workspaceFolder}",
+            "console": "integratedTerminal",
+            "redirectOutput": true
+        },
+        {
+            "name": "Debug: Current File",
+            "type": "debugpy",
+            "request": "launch",
+            "program": "${file}",
+            "console": "integratedTerminal",
+            "redirectOutput": true
+        }
+    ]
+}

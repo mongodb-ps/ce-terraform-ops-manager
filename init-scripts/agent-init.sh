@@ -1,6 +1,7 @@
 #!/bin/bash
-curl -OL "${OM_URL}download/agent/automation/mongodb-mms-automation-agent-manager_${OM_AUTOMATION_VERSION}_amd64.ubuntu1604.deb"
-sudo dpkg -i "mongodb-mms-automation-agent-manager_${OM_AUTOMATION_VERSION}_amd64.ubuntu1604.deb"
+PKG_NAME="mongodb-mms-automation-agent-manager_${OM_AUTOMATION_VERSION}_amd64.ubuntu2004.deb"
+curl -OL "${OM_URL}download/agent/automation/$PKG_NAME"
+sudo dpkg -i "$PKG_NAME"
 sudo sed -i 's/^\(mmsGroupId=\).*/\1'"${OM_GROUP_ID}"'/' /etc/mongodb-mms/automation-agent.config
 sudo sed -i 's/^\(mmsApiKey=\).*/\1'"${OM_API_KEY}"'/' /etc/mongodb-mms/automation-agent.config
 sudo sed -i 's%^\(mmsBaseUrl=\).*%\1'"${OM_URL}"'%' /etc/mongodb-mms/automation-agent.config
