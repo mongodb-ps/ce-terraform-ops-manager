@@ -28,8 +28,6 @@ The main folders that you need to use are:
 Due to the limitation of Terraform, I can't do everything in 1 phase. You need to finish `1-om` then start `2-clusters`.
 
 ## 3 Use the Tool
-**Be aware of the [known issues](#4-known-issues). Some of them can fail the deployment.**
-
 ### 3.1 Variables
 Everything is autowired: only `aws_config.region` is required, every other variable has a default or is derived automatically. The variables below let you customize the deployment. You can find in `1-om/variables.tf` all the other variables and instructions.
 
@@ -101,22 +99,16 @@ terraform destroy
 ```
 
 ## 4 Known Issues
-### 4.1 Cloudflare
-Cloudflare WARP is known to prevent us from sending big post requests. Thus the automation API requests in `2-clusters` will fail.  
-Turn off Cloudflare WARP or use DoH mode will fix the problem.
-
-If you have finished `1-om` with WARP on, you need to go to Admin->Global Access List to whitelist your public IP so the script can work properly. Note the new whitelist takes 5 min to take effect.
-
-### 4.2 Ops Manager API
+### 4.1 Ops Manager API
 There's no Terraform provider for Ops Manager. So I have to create some Python scripts to call the API, and use the `null_resource` to call the Python scripts. In this case, the resources (Orgs, Projects, Clusters) in Ops Manager will not be properly destroyed. This is usually harmless because they will be destroyed when you destroy Ops Manager.
 
-### 4.3 Standalone AppDB
+### 4.2 Standalone AppDB
 Although you can customize how many instances of backup DB, test DB you need, the AppDB currenly only support a single instance standalone. This should be enough for most use cases.
 
-### 4.4 Certificates
+### 4.3 Certificates
 Features that needs certificates are not supported at the moment. Including:
 - HTTPS
 - Queryable backup
 
-### 4.5 Email
+### 4.4 Email
 SMTP is not configured at the moment. All features that rely on the email will fail.
