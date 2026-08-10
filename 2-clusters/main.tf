@@ -19,16 +19,6 @@ locals {
   snapshot_store_bucket = "${local.s3_config.prefix}-snapshot-store"
 }
 
-resource "null_resource" "prerequisites" {
-  triggers = {
-    always_run = timestamp()
-  }
-
-  provisioner "local-exec" {
-    command = "bash ${path.root}/../scripts/check-prerequisites.sh"
-  }
-}
-
 resource "local_file" "vars_json" {
   filename = "${path.root}/../stage-2-output.json"
   content = jsonencode({

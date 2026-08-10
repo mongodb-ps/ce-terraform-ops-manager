@@ -11,7 +11,6 @@ resource "null_resource" "enable_backup_daemon" {
     command = "python3 ${path.root}/../scripts/enable_daemon.py"
   }
 
-  depends_on = [null_resource.prerequisites]
 }
 
 resource "null_resource" "enable_mongo_oplog_store" {
@@ -65,7 +64,6 @@ module "oplog_store" {
   bucket_name = local.oplog_store_bucket
   tags        = local.tags
 
-  depends_on = [null_resource.prerequisites]
 }
 module "snapshot_store" {
   count       = local.om_config.backup_type == "s3" ? 1 : 0
@@ -73,7 +71,6 @@ module "snapshot_store" {
   bucket_name = local.snapshot_store_bucket
   tags        = local.tags
 
-  depends_on = [null_resource.prerequisites]
 }
 
 resource "null_resource" "enable_s3_oplog_store" {

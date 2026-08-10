@@ -9,7 +9,6 @@ data "external" "om_info" {
     project_name = "BackingDB",
   }
 
-  depends_on = [null_resource.prerequisites]
 }
 locals {
   om_info = data.external.om_info.result
