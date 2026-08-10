@@ -67,47 +67,43 @@ variable "om_config" {
     | `appdb.version`             | MongoDB major and minor version for the Ops Manager application database, for example `8.0`. |
     | `appdb.root_size_gb`        | Root volume size in GB for the Ops Manager application database.                             |
     | `backing_db.ami_id`         | EC2 AMI ID for the Ops Manager backing database. When null, `default_ami_id` is used.        |
-    | `backing_db.version`        | Full MongoDB version for the Ops Manager backing database, for example `8.0.16-ent`.         |
+    | `backing_db.version`        | MongoDB version for the Ops Manager backing database, for example `8.0.16-ent`. When null, the latest patch of the same `major.minor` as `version` is used, looked up from the MongoDB Enterprise Advanced release archive. |
     | `backing_db.tier`           | EC2 instance type for the Ops Manager backing database.                                      |
     | `backing_db.root_size_gb`   | Root volume size in GB for the Ops Manager backing database.                                 |
     | `backing_db.instance_count` | Number of instances in the Ops Manager backing database replica set.                         |
   EOT
   type = object({
-    ami_id         = string
+    ami_id         = optional(string)
     version        = optional(string)
     tier           = string
     root_size_gb   = number
     instance_count = number
     backup_type    = string
     appdb = object({
-      ami_id       = string
+      ami_id       = optional(string)
       tier         = string
       version      = string
       root_size_gb = number
     })
     backing_db = object({
-      ami_id         = string
-      version        = string
+      ami_id         = optional(string)
+      version        = optional(string)
       tier           = string
       root_size_gb   = number
       instance_count = number
     })
   })
   default = {
-    ami_id         = null
     tier           = "t3.xlarge"
     root_size_gb   = 50
     instance_count = 1
     backup_type    = "s3"
     appdb = {
-      ami_id       = null
       tier         = "t3.medium"
       version      = "8.0"
       root_size_gb = 50
     }
     backing_db = {
-      ami_id         = null
-      version        = "8.0.16-ent"
       tier           = "t3.small"
       root_size_gb   = 50
       instance_count = 1

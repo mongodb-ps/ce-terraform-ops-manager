@@ -8,6 +8,13 @@ data "http" "om_releases" {
   url = "https://www.mongodb.com/try/download/ops-manager/releases/archive"
 }
 
+# MongoDB Enterprise Advanced release archive: the backing database version is
+# resolved from the ubuntu2204 server packages on this page when backing_db.version
+# is not provided (see the enterprise_* locals in main.tf).
+data "http" "mongodb_enterprise_releases" {
+  url = "https://www.mongodb.com/try/download/enterprise-advanced/releases"
+}
+
 # Runs at plan time (data sources are read during the refresh phase), so a failing
 # prerequisites check aborts the plan before anything is created or modified.
 data "external" "prerequisites" {
