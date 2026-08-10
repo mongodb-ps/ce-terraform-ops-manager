@@ -12,6 +12,20 @@ resource "random_password" "backing_db" {
   special = false
 }
 
+# Random password used when first_user.pwd is not provided. Ops Manager requires
+# upper/lowercase, digits, special characters and at least 8 characters. The special
+# charset excludes characters that would break the shell quoting in create_first_user.sh.
+resource "random_password" "first_user" {
+  count            = var.first_user.pwd == null ? 1 : 0
+  length           = 24
+  special          = true
+  override_special = "!@#%^+=-_.,:/~"
+  min_upper        = 1
+  min_lower        = 1
+  min_numeric      = 1
+  min_special      = 1
+}
+
 locals {
   email = var.email != null ? var.email : regex(".*/([^/]+)$", data.aws_caller_identity.current[0].arn)[0]
   # If key_name is not provided, use the local part of the email (before @)
@@ -50,6 +64,7 @@ locals {
   name_parts = split(".", split("@", local.email)[0])
   first_user = merge(var.first_user, {
     email     = var.first_user.email != null ? var.first_user.email : local.email
+    pwd       = var.first_user.pwd != null ? var.first_user.pwd : random_password.first_user[0].result
     firstName = var.first_user.firstName != null ? var.first_user.firstName : local.name_parts[0]
     lastName  = var.first_user.lastName != null ? var.first_user.lastName : length(local.name_parts) > 1 ? join(".", slice(local.name_parts, 1, length(local.name_parts))) : "Doe"
   })

@@ -190,15 +190,16 @@ variable "first_user" {
     | Field       | Description                                                                                                                                                          |
     | ----------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
     | `email`     | Email of the user. When not provided, filled from the `email` variable.                                                                                              |
-    | `pwd`       | Password of the user.                                                                                                                                                |
+    | `pwd`       | Password of the user. When not provided, a random one (8+ characters with upper/lowercase letters, digits and special characters) is generated.                      |
     | `firstName` | First name of the user. When not provided, derived from the local part of `email`: the part before the first `.`, or the whole local part when there is no `.`.      |
     | `lastName`  | Last name of the user. When not provided, derived from the local part of `email`: the part after the first `.`, or `Doe` when there is no `.`.                       |
   EOT
   sensitive   = true
   type = object({
     email     = optional(string)
-    pwd       = string
+    pwd       = optional(string)
     firstName = optional(string)
     lastName  = optional(string)
   })
+  default = {}
 }

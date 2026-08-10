@@ -66,7 +66,7 @@ The first Ops Manager user. This will be the Ops Manager admin.
 | Field       | Required | Description                                                                                                                            |
 | ----------- | -------- | -------------------------------------------------------------------------------------------------------------------------------------- |
 | `email`     | No       | Email of the user. When not provided, filled from the `email` variable.                                                                |
-| `pwd`       | Yes      | Password of the user.                                                                                                                  |
+| `pwd`       | No       | Password of the user. When not provided, a random one (8+ characters with upper/lowercase letters, digits and special characters) is generated. |
 | `firstName` | No       | First name of the user. When not provided, derived from the local part of `email`: the part before the first `.`, or the whole local part when there is no `.`. |
 | `lastName`  | No       | Last name of the user. When not provided, derived from the local part of `email`: the part after the first `.`, or `Doe` when there is no `.`.                 |
 
