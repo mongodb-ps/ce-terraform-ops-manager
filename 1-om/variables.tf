@@ -7,7 +7,7 @@ variable "aws_config" {
     | `region`    | AWS region.                                                                                    |
     | `vpc_id`    | ID of the existing VPC where EC2 instances will be created. When null, a VPC is created.       |
     | `subnet_id` | ID of the existing subnet where EC2 instances will be created. When null, a subnet is created. |
-    | `key_name`  | Name of the AWS key pair. When null, the local part of the `email` (before `@`) is used. The local key pair must exist at `~/.ssh/<key_name>` and `~/.ssh/<key_name>.pub`, otherwise the plan fails. Terraform creates the key pair on AWS; if it already exists but is not in the Terraform state, import it once with `terraform import aws_key_pair.vm <key_name>`. |
+    | `key_name`  | Name of the AWS key pair. When null, the local part of the `email` (before `@`) is used. A local key pair at `~/.ssh/<key_name>` and `~/.ssh/<key_name>.pub` is imported into AWS as-is. When it is missing, Terraform generates a new ED25519 key pair on the first apply, imports its public key into AWS and saves the private key to `~/.ssh/<key_name>` (with 0600 permissions); later applies reuse the saved key. If the key pair already exists on AWS but is not in the Terraform state, import it once with `terraform import aws_key_pair.vm <key_name>`. |
   EOT
   type = object({
     region    = string
@@ -57,7 +57,7 @@ variable "om_config" {
     | Field                       | Description                                                                                  |
     | --------------------------- | -------------------------------------------------------------------------------------------- |
     | `ami_id`                    | EC2 AMI ID for the Ops Manager application servers. When null, `default_ami_id` is used.     |
-    | `download_url`              | Download URL for the Ops Manager package.                                                    |
+    | `version`                   | Ops Manager version, for example `8.0.16`. The download URL is resolved from the Ops Manager release archive: the newest package whose name contains `version`. When null, the newest available package is used. |
     | `tier`                      | EC2 instance type for the Ops Manager application servers.                                   |
     | `root_size_gb`              | Root volume size in GB for the Ops Manager application servers.                              |
     | `instance_count`            | Number of Ops Manager application server instances.                                          |
@@ -67,48 +67,43 @@ variable "om_config" {
     | `appdb.version`             | MongoDB major and minor version for the Ops Manager application database, for example `8.0`. |
     | `appdb.root_size_gb`        | Root volume size in GB for the Ops Manager application database.                             |
     | `backing_db.ami_id`         | EC2 AMI ID for the Ops Manager backing database. When null, `default_ami_id` is used.        |
-    | `backing_db.version`        | Full MongoDB version for the Ops Manager backing database, for example `8.0.16-ent`.         |
+    | `backing_db.version`        | MongoDB version for the Ops Manager backing database, for example `8.0.16-ent`. When null, the latest patch of the same `major.minor` as `version` is used, looked up from the MongoDB Enterprise Advanced release archive. |
     | `backing_db.tier`           | EC2 instance type for the Ops Manager backing database.                                      |
     | `backing_db.root_size_gb`   | Root volume size in GB for the Ops Manager backing database.                                 |
     | `backing_db.instance_count` | Number of instances in the Ops Manager backing database replica set.                         |
   EOT
   type = object({
-    ami_id         = string
-    download_url   = string
+    ami_id         = optional(string)
+    version        = optional(string)
     tier           = string
     root_size_gb   = number
     instance_count = number
     backup_type    = string
     appdb = object({
-      ami_id       = string
+      ami_id       = optional(string)
       tier         = string
       version      = string
       root_size_gb = number
     })
     backing_db = object({
-      ami_id         = string
-      version        = string
+      ami_id         = optional(string)
+      version        = optional(string)
       tier           = string
       root_size_gb   = number
       instance_count = number
     })
   })
   default = {
-    download_url   = "https://downloads.mongodb.com/on-prem-mms/deb/mongodb-mms-8.0.25.500.20260703T0841Z.amd64.deb"
-    ami_id         = null # if null, default_ami_id will be used
     tier           = "t3.xlarge"
     root_size_gb   = 50
     instance_count = 1
     backup_type    = "s3"
     appdb = {
-      ami_id       = null
       tier         = "t3.medium"
       version      = "8.3"
       root_size_gb = 50
     }
     backing_db = {
-      ami_id         = null # if null, default_ami_id will be used
-      version        = "8.0.16-ent"
       tier           = "t3.small"
       root_size_gb   = 50
       instance_count = 1

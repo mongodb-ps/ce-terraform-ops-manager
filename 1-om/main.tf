@@ -47,13 +47,44 @@ locals {
     name = var.backing_db_credentials.name != null ? var.backing_db_credentials.name : "root"
     pwd  = var.backing_db_credentials.pwd != null ? var.backing_db_credentials.pwd : random_password.backing_db[0].result
   }
+  # Resolve the Ops Manager package download URL from the release archive page:
+  # the newest package whose name contains om_config.version, or the newest
+  # overall when no version is provided. Only the main Ops Manager package in the
+  # current naming scheme (mongodb-mms-<major>.<minor>.<patch>.<build>.<timestamp>.amd64.deb)
+  # is considered; legacy 1.x-5.x and mongodb-mms-backup-daemon links are excluded.
+  om_deb_urls = distinct(regexall("https://downloads\\.mongodb\\.com/on-prem-mms/deb/mongodb-mms-(?:[0-9]+)\\.(?:[0-9]+)\\.(?:[0-9]+)\\.(?:[0-9]+)\\.(?:[0-9TZ]+)\\.amd64\\.deb", data.http.om_releases.response_body))
+  om_deb_parsed = [for u in local.om_deb_urls : {
+    url  = u
+    caps = regex("mongodb-mms-([0-9]+)\\.([0-9]+)\\.([0-9]+)\\.([0-9]+)\\.([0-9TZ]+)\\.amd64\\.deb$", u)
+  }]
+  # Zero-pad the numeric components so lexicographic order matches version order.
+  om_deb_by_key = {
+    for p in local.om_deb_parsed :
+    format("%03d.%03d.%03d.%03d.%s", tonumber(p.caps[0]), tonumber(p.caps[1]), tonumber(p.caps[2]), tonumber(p.caps[3]), p.caps[4]) => p.url
+  }
+  om_deb_candidates = var.om_config.version != null ? { for k, v in local.om_deb_by_key : k => v if strcontains(v, var.om_config.version) } : local.om_deb_by_key
+  om_deb_url        = local.om_deb_candidates[element(sort(keys(local.om_deb_candidates)), -1)]
+  # Resolve the backing database MongoDB version: when backing_db.version is not
+  # provided, use the latest patch of the same major.minor as the Ops Manager
+  # version, looked up from the MongoDB Enterprise Advanced release archive.
+  om_version             = var.om_config.version != null ? var.om_config.version : join(".", regex("mongodb-mms-([0-9]+)\\.([0-9]+)\\.([0-9]+)\\.([0-9]+)\\.([0-9TZ]+)\\.amd64\\.deb$", local.om_deb_url))
+  om_version_major_minor = join(".", slice(split(".", local.om_version), 0, 2))
+  enterprise_versions    = distinct(regexall("mongodb-linux-x86_64-enterprise-ubuntu2204-([0-9]+)\\.([0-9]+)\\.([0-9]+)", data.http.mongodb_enterprise_releases.response_body))
+  enterprise_by_key = {
+    for v in local.enterprise_versions :
+    format("%03d.%03d.%03d", tonumber(v[0]), tonumber(v[1]), tonumber(v[2])) => join(".", v)
+    if "${v[0]}.${v[1]}" == local.om_version_major_minor
+  }
+  backing_db_version = var.om_config.backing_db.version != null ? var.om_config.backing_db.version : "${local.enterprise_by_key[element(sort(keys(local.enterprise_by_key)), -1)]}-ent"
   om_config = merge(var.om_config, {
-    ami_id = var.om_config.ami_id != null ? var.om_config.ami_id : var.default_ami_id,
+    ami_id       = var.om_config.ami_id != null ? var.om_config.ami_id : var.default_ami_id,
+    download_url = local.om_deb_url,
     appdb = merge(var.om_config.appdb, {
       ami_id = var.om_config.appdb.ami_id != null ? var.om_config.appdb.ami_id : var.default_ami_id,
     }),
     backing_db = merge(var.om_config.backing_db, {
-      ami_id = var.om_config.backing_db.ami_id != null ? var.om_config.backing_db.ami_id : var.default_ami_id,
+      ami_id  = var.om_config.backing_db.ami_id != null ? var.om_config.backing_db.ami_id : var.default_ami_id,
+      version = local.backing_db_version,
     })
   })
   test_instance_config = merge(var.test_instance_config, {
