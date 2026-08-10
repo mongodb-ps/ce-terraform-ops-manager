@@ -1,5 +1,14 @@
 output "backing_db_credentials" {
-  value = var.backing_db_credentials
+  value     = local.backing_db_credentials
+  sensitive = true
+}
+
+output "first_user" {
+  description = "Credentials of the first Ops Manager user"
+  value = {
+    email = local.first_user.email
+    pwd   = local.first_user.pwd
+  }
   sensitive = true
 }
 
