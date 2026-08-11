@@ -37,11 +37,12 @@ locals {
     prefix   = var.s3_config.prefix != null ? var.s3_config.prefix : split("@", lower(local.email))[0]
     endpoint = var.s3_config.endpoint != null ? var.s3_config.endpoint : "https://s3.${var.aws_config.region}.amazonaws.com"
   }
-  # Resolve the VPC/subnet to use: existing ones when provided, otherwise the ones created in vpc.tf
+  # Resolve the VPC/subnet to use: existing ones when provided, otherwise the
+  # default VPC (or the first VPC in the region) and one of its public subnets.
   aws_config = merge(var.aws_config, {
     key_name  = local.key_name
-    vpc_id    = var.aws_config.vpc_id != null ? var.aws_config.vpc_id : aws_vpc.om[0].id
-    subnet_id = var.aws_config.subnet_id != null ? var.aws_config.subnet_id : aws_subnet.om[0].id
+    vpc_id    = var.aws_config.vpc_id != null ? var.aws_config.vpc_id : local.fallback_vpc_id
+    subnet_id = var.aws_config.subnet_id != null ? var.aws_config.subnet_id : local.fallback_subnet_id
   })
   backing_db_credentials = {
     name = var.backing_db_credentials.name != null ? var.backing_db_credentials.name : "root"

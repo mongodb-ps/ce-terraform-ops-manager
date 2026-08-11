@@ -5,8 +5,8 @@ variable "aws_config" {
     | Field       | Description                                                                                    |
     | ----------- | ---------------------------------------------------------------------------------------------- |
     | `region`    | AWS region.                                                                                    |
-    | `vpc_id`    | ID of the existing VPC where EC2 instances will be created. When null, a VPC is created.       |
-    | `subnet_id` | ID of the existing subnet where EC2 instances will be created. When null, a subnet is created. |
+    | `vpc_id`    | ID of the existing VPC where EC2 instances will be created. When null, the default VPC of the region is used (or the first available VPC when the account has no default VPC). |
+    | `subnet_id` | ID of the existing subnet where EC2 instances will be created. When null, a public subnet (auto-assign public IP) of the resolved VPC is used. |
     | `key_name`  | Name of the AWS key pair. When null, the local part of the `email` (before `@`) is used. A local key pair at `~/.ssh/<key_name>` and `~/.ssh/<key_name>.pub` is imported into AWS as-is. When it is missing, Terraform generates a new ED25519 key pair on the first apply, imports its public key into AWS and saves the private key to `~/.ssh/<key_name>` (with 0600 permissions); later applies reuse the saved key. If the key pair already exists on AWS but is not in the Terraform state, import it once with `terraform import aws_key_pair.vm <key_name>`. |
   EOT
   type = object({
@@ -17,7 +17,7 @@ variable "aws_config" {
   })
   validation {
     condition     = (var.aws_config.vpc_id != null && var.aws_config.subnet_id != null) || (var.aws_config.vpc_id == null && var.aws_config.subnet_id == null)
-    error_message = "vpc_id and subnet_id must either both be provided (existing VPC) or both be omitted (a VPC and subnet are created automatically)."
+    error_message = "vpc_id and subnet_id must either both be provided (existing VPC) or both be omitted (the default VPC and one of its public subnets are used automatically)."
   }
 }
 variable "email" {
@@ -54,23 +54,23 @@ variable "om_config" {
   description = <<-EOT
     Configuration options for Ops Manager.
 
-    | Field                       | Description                                                                                  |
-    | --------------------------- | -------------------------------------------------------------------------------------------- |
-    | `ami_id`                    | EC2 AMI ID for the Ops Manager application servers. When null, `default_ami_id` is used.     |
-    | `version`                   | Ops Manager version, for example `8.0.16`. The download URL is resolved from the Ops Manager release archive: the newest package whose name contains `version`. When null, the newest available package is used. |
-    | `tier`                      | EC2 instance type for the Ops Manager application servers.                                   |
-    | `root_size_gb`              | Root volume size in GB for the Ops Manager application servers.                              |
-    | `instance_count`            | Number of Ops Manager application server instances.                                          |
-    | `backup_type`               | Backup store type. Valid options are `s3`, `mongo`, `fileSystem`, and `none`.                |
-    | `appdb.ami_id`              | EC2 AMI ID for the Ops Manager application database. When null, `default_ami_id` is used.    |
-    | `appdb.tier`                | EC2 instance type for the Ops Manager application database.                                  |
-    | `appdb.version`             | MongoDB major and minor version for the Ops Manager application database, for example `8.0`. |
-    | `appdb.root_size_gb`        | Root volume size in GB for the Ops Manager application database.                             |
-    | `backing_db.ami_id`         | EC2 AMI ID for the Ops Manager backing database. When null, `default_ami_id` is used.        |
+    | Field                       | Description                                                                                                                                                                                                                 |
+    | --------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+    | `ami_id`                    | EC2 AMI ID for the Ops Manager application servers. When null, `default_ami_id` is used.                                                                                                                                    |
+    | `version`                   | Ops Manager version, for example `8.0.16`. The download URL is resolved from the Ops Manager release archive: the newest package whose name contains `version`. When null, the newest available package is used.            |
+    | `tier`                      | EC2 instance type for the Ops Manager application servers.                                                                                                                                                                  |
+    | `root_size_gb`              | Root volume size in GB for the Ops Manager application servers.                                                                                                                                                             |
+    | `instance_count`            | Number of Ops Manager application server instances.                                                                                                                                                                         |
+    | `backup_type`               | Backup store type. Valid options are `s3`, `mongo`, `fileSystem`, and `none`.                                                                                                                                               |
+    | `appdb.ami_id`              | EC2 AMI ID for the Ops Manager application database. When null, `default_ami_id` is used.                                                                                                                                   |
+    | `appdb.tier`                | EC2 instance type for the Ops Manager application database.                                                                                                                                                                 |
+    | `appdb.version`             | MongoDB major and minor version for the Ops Manager application database, for example `8.0`.                                                                                                                                |
+    | `appdb.root_size_gb`        | Root volume size in GB for the Ops Manager application database.                                                                                                                                                            |
+    | `backing_db.ami_id`         | EC2 AMI ID for the Ops Manager backing database. When null, `default_ami_id` is used.                                                                                                                                       |
     | `backing_db.version`        | MongoDB version for the Ops Manager backing database, for example `8.0.16-ent`. When null, the latest patch of the same `major.minor` as `version` is used, looked up from the MongoDB Enterprise Advanced release archive. |
-    | `backing_db.tier`           | EC2 instance type for the Ops Manager backing database.                                      |
-    | `backing_db.root_size_gb`   | Root volume size in GB for the Ops Manager backing database.                                 |
-    | `backing_db.instance_count` | Number of instances in the Ops Manager backing database replica set.                         |
+    | `backing_db.tier`           | EC2 instance type for the Ops Manager backing database.                                                                                                                                                                     |
+    | `backing_db.root_size_gb`   | Root volume size in GB for the Ops Manager backing database.                                                                                                                                                                |
+    | `backing_db.instance_count` | Number of instances in the Ops Manager backing database replica set.                                                                                                                                                        |
   EOT
   type = object({
     ami_id         = optional(string)
