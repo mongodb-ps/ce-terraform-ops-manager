@@ -35,7 +35,7 @@ locals {
       cidr_blocks = local.my_ip_cidrs
     },
     {
-      description = "HTTPS access"
+      description = "MongoDB access"
       from_port   = 27017
       to_port     = 27017
       protocol    = "tcp"
