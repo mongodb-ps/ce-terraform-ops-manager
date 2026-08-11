@@ -1,5 +1,5 @@
 data "http" "my_ip" {
-  url = "https://ifconfig.me/ip"
+  url = "https://api.ipify.org"
 }
 
 # Ops Manager release archive: the download URL for the Ops Manager package is

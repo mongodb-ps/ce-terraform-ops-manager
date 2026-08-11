@@ -5,7 +5,7 @@ data "aws_vpc" "selected" {
 
 # Only the machine running Terraform can reach the management ports
 data "http" "my_ip" {
-  url = "https://ifconfig.me/ip"
+  url = "https://api.ipify.org"
 }
 
 # Calculate expiration date (3 days from now) if not provided
