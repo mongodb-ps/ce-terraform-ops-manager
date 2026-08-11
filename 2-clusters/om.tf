@@ -3,8 +3,8 @@ module "om_backup" {
   source                 = "../modules/ec2"
   instance_name_prefix   = "om-backup"
   instance_type          = local.test_instance_config.tier
-  vpc_id                 = local.aws_config.vpc_id
   subnet_id              = local.aws_config.subnet_id
+  security_group_id      = local.shared_sg.id
   tags                   = local.tags
   instance_count         = local.om_config.backup_type != "none" ? local.om_config.backing_db.instance_count : 0
   ami_id                 = local.om_config.backing_db.ami_id
@@ -29,9 +29,9 @@ locals {
   }
   backup_hosts = module.om_backup.instance_private_dns
   params_backup = replace(jsonencode(merge(local.params, {
-    rs                = "backup",
-    hosts             = local.backup_hosts,
-    project_id        = local.om_info.project_id,
+    rs             = "backup",
+    hosts          = local.backup_hosts,
+    project_id     = local.om_info.project_id,
     backup_version = local.om_config.backing_db.version,
     backup_fcv     = local.backup_fcv
   })), "\\n", "")
@@ -49,5 +49,5 @@ resource "null_resource" "create_backup_rs" {
     }
     command = "python3 ${path.root}/../scripts/create_cluster.py "
   }
-  depends_on = [ module.om_backup ]
+  depends_on = [module.om_backup]
 }

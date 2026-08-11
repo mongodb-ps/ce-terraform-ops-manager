@@ -19,32 +19,14 @@ variable "key_name" {
   type        = string
 }
 
-variable "vpc_id" {
-  description = "VPC ID where resources will be created. If not provided, default VPC will be used"
-  type        = string
-}
-
 variable "subnet_id" {
   description = "Subnet ID where resources will be created. If not provided, default subnet will be used"
   type        = string
 }
 
-variable "allowed_ssh_cidrs" {
-  description = "List of CIDR blocks allowed to SSH into the instances"
-  type        = list(string)
-  default     = ["0.0.0.0/0"]
-}
-
-variable "ingress_rules" {
-  description = "List of ingress rules for the security group"
-  type = list(object({
-    description = string
-    from_port   = number
-    to_port     = number
-    protocol    = string
-    cidr_blocks = list(string)
-  }))
-  default = []
+variable "security_group_id" {
+  description = "ID of the shared security group that all EC2 instances attach to. The security group allows the instances to reach each other, so no per-instance rules are managed here"
+  type        = string
 }
 
 variable "instance_name_prefix" {

@@ -1,79 +1,6 @@
-# Get VPC information to retrieve CIDR block
-data "aws_vpc" "selected" {
-  id = var.vpc_id
-}
-
-# Only the machine running Terraform can reach the management ports
-data "http" "my_ip" {
-  url = "https://api.ipify.org"
-}
-
 # Calculate expiration date (3 days from now) if not provided
 locals {
   expire_on_date = lookup(var.tags, "expire-on", "") != "" ? var.tags["expire-on"] : formatdate("YYYY-MM-DD", timeadd(timestamp(), "72h"))
-  my_ip_cidrs    = ["${trimspace(data.http.my_ip.response_body)}/32"]
-  ingress_rules = concat([
-    {
-      description = "SSH access"
-      from_port   = 22
-      to_port     = 22
-      protocol    = "tcp"
-      cidr_blocks = local.my_ip_cidrs
-    },
-    {
-      description = "HTTP access"
-      from_port   = 80
-      to_port     = 80
-      protocol    = "tcp"
-      cidr_blocks = local.my_ip_cidrs
-    },
-    {
-      description = "HTTPS access"
-      from_port   = 443
-      to_port     = 443
-      protocol    = "tcp"
-      cidr_blocks = local.my_ip_cidrs
-    },
-    {
-      description = "MongoDB access"
-      from_port   = 27017
-      to_port     = 27017
-      protocol    = "tcp"
-      cidr_blocks = [data.aws_vpc.selected.cidr_block]
-    }
-  ], var.ingress_rules)
-}
-
-# Security Group for EC2 instances
-resource "aws_security_group" "vm_sg" {
-  name        = "${var.instance_name_prefix}-sg"
-  description = "Security group for ${var.instance_name_prefix} EC2 instances"
-  vpc_id      = var.vpc_id
-
-  # Dynamic ingress rules
-  dynamic "ingress" {
-    for_each = local.ingress_rules
-    content {
-      description = ingress.value.description
-      from_port   = ingress.value.from_port
-      to_port     = ingress.value.to_port
-      protocol    = ingress.value.protocol
-      cidr_blocks = ingress.value.cidr_blocks
-    }
-  }
-
-  # All outbound traffic
-  egress {
-    description = "All outbound traffic"
-    from_port   = 0
-    to_port     = 0
-    protocol    = "-1"
-    cidr_blocks = ["0.0.0.0/0"]
-  }
-
-  tags = {
-    Name = "${var.instance_name_prefix}-sg"
-  }
 }
 
 # EC2 Instances
@@ -83,7 +10,7 @@ resource "aws_instance" "vm" {
   instance_type          = var.instance_type
   key_name               = var.key_name != "" ? var.key_name : null
   subnet_id              = var.subnet_id
-  vpc_security_group_ids = [aws_security_group.vm_sg.id]
+  vpc_security_group_ids = [var.security_group_id]
   iam_instance_profile   = var.iam_instance_profile
 
   # User data script for initialization

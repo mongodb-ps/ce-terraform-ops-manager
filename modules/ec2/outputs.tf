@@ -24,13 +24,8 @@ output "instance_private_dns" {
 }
 
 output "security_group_id" {
-  description = "ID of the security group"
-  value       = aws_security_group.vm_sg.id
-}
-
-output "vpc_cidr_block" {
-  description = "CIDR block of the VPC"
-  value       = data.aws_vpc.selected.cidr_block
+  description = "ID of the shared security group"
+  value       = var.security_group_id
 }
 
 output "ssh_connection_strings" {

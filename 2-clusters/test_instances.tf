@@ -3,8 +3,8 @@ module "test_instances" {
   source                 = "../modules/ec2"
   instance_name_prefix   = "test-instance"
   instance_type          = local.test_instance_config.tier
-  vpc_id                 = local.aws_config.vpc_id
   subnet_id              = local.aws_config.subnet_id
+  security_group_id      = local.shared_sg.id
   key_name               = local.aws_config.key_name
   tags                   = local.tags
   instance_count         = local.test_instance_config.instance_count

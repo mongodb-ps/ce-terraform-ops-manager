@@ -92,12 +92,15 @@ The first Ops Manager user. This will be the Ops Manager admin.
 
 ### 3.2 Deploy Ops Manager
 
-> **Note on access control:** the security groups created by these scripts only allow inbound
-> access (SSH, HTTP/HTTPS, and the Ops Manager web ports 8080/8443) from the public IP of the
-> machine that runs `terraform apply`. The IPv4 address is resolved from `https://api.ipify.org`
-> at plan time and applied as a `/32` CIDR. If your public IP changes, re-run `terraform apply`
-> to update the security group rules; no other source can reach the instances. Outbound traffic
-> stays unrestricted so the instances can download packages during initialization.
+> **Note on access control:** all EC2 instances share a single security group. Its ingress
+> rules allow inbound access (SSH, HTTP/HTTPS, and the Ops Manager web ports 8080/8443) from
+> the public IP of the machine that runs `terraform apply` (resolved from `https://api.ipify.org`
+> at plan time and applied as a `/32` CIDR), all traffic from the VPC (private) CIDR, and all
+> traffic between the instances themselves (the security group references itself as a source,
+> so every instance attached to it can reach the others on any port). If your public IP changes,
+> re-run `terraform apply` to update the security group rules; no other source can reach the
+> instances. Outbound traffic stays unrestricted so the instances can download packages during
+> initialization.
 
 #### AWS Credentials
 - Open AWS from company portal.

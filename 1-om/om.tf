@@ -58,8 +58,8 @@ resource "local_file" "vm_private_key" {
 module "om_appdb" {
   source                 = "../modules/ec2"
   instance_name_prefix   = "om-appdb"
-  vpc_id                 = local.aws_config.vpc_id
   subnet_id              = local.aws_config.subnet_id
+  security_group_id      = aws_security_group.shared.id
   tags                   = local.tags
   key_name               = local.aws_config.key_name
   ami_id                 = local.om_config.appdb.ami_id
@@ -83,8 +83,8 @@ locals {
 module "om_app" {
   source                 = "../modules/ec2"
   instance_name_prefix   = "om"
-  vpc_id                 = local.aws_config.vpc_id
   subnet_id              = local.aws_config.subnet_id
+  security_group_id      = aws_security_group.shared.id
   key_name               = local.aws_config.key_name
   ami_id                 = local.om_config.ami_id
   instance_type          = local.om_config.tier
@@ -93,22 +93,6 @@ module "om_app" {
   tags                   = local.tags
   iam_instance_profile   = "s3_full_access"
   depends_on             = [aws_key_pair.vm, data.external.prerequisites]
-  ingress_rules = [
-    {
-      description = "HTTP 8080 access"
-      from_port   = 8080
-      to_port     = 8080
-      protocol    = "tcp"
-      cidr_blocks = local.my_ip_cidrs
-    },
-    {
-      description = "HTTP 8443 access"
-      from_port   = 8443
-      to_port     = 8443
-      protocol    = "tcp"
-      cidr_blocks = local.my_ip_cidrs
-    }
-  ]
   init_script = templatefile("${path.root}/../init-scripts/om-init.sh", {
     OM_DOWNLOAD_URL   = local.om_config.download_url,
     OM_APPDB_HOSTS    = local.appdb_hosts_str,

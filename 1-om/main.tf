@@ -113,6 +113,10 @@ resource "local_file" "vars_json" {
     default_ami_id         = var.default_ami_id
     s3_config              = local.s3_config
     om_access_url          = "http://${module.om_app.instance_public_dns[0]}:8080/"
+    shared_sg = {
+      id   = aws_security_group.shared.id
+      name = aws_security_group.shared.name
+    }
   })
 }
 
