@@ -25,6 +25,9 @@ locals {
   # Reuse the local key pair when it exists; otherwise generate a new one and import it to AWS.
   pub_path   = "${pathexpand("~/.ssh/${local.aws_config.key_name}")}.pub"
   pub_exists = fileexists(local.pub_path)
+
+  # Restrict Ops Manager web access to the machine running Terraform
+  my_ip_cidrs = ["${trimspace(data.http.my_ip.response_body)}/32"]
 }
 
 # Generates a new key pair only when the local one does not exist yet.
@@ -96,14 +99,14 @@ module "om_app" {
       from_port   = 8080
       to_port     = 8080
       protocol    = "tcp"
-      cidr_blocks = ["0.0.0.0/0"]
+      cidr_blocks = local.my_ip_cidrs
     },
     {
       description = "HTTP 8443 access"
       from_port   = 8443
       to_port     = 8443
       protocol    = "tcp"
-      cidr_blocks = ["0.0.0.0/0"]
+      cidr_blocks = local.my_ip_cidrs
     }
   ]
   init_script = templatefile("${path.root}/../init-scripts/om-init.sh", {

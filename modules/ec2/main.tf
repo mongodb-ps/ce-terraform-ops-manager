@@ -3,30 +3,36 @@ data "aws_vpc" "selected" {
   id = var.vpc_id
 }
 
+# Only the machine running Terraform can reach the management ports
+data "http" "my_ip" {
+  url = "https://ifconfig.me/ip"
+}
+
 # Calculate expiration date (3 days from now) if not provided
 locals {
   expire_on_date = lookup(var.tags, "expire-on", "") != "" ? var.tags["expire-on"] : formatdate("YYYY-MM-DD", timeadd(timestamp(), "72h"))
+  my_ip_cidrs    = ["${trimspace(data.http.my_ip.response_body)}/32"]
   ingress_rules = concat([
     {
       description = "SSH access"
       from_port   = 22
       to_port     = 22
       protocol    = "tcp"
-      cidr_blocks = ["0.0.0.0/0"]
+      cidr_blocks = local.my_ip_cidrs
     },
     {
       description = "HTTP access"
       from_port   = 80
       to_port     = 80
       protocol    = "tcp"
-      cidr_blocks = ["0.0.0.0/0"]
+      cidr_blocks = local.my_ip_cidrs
     },
     {
       description = "HTTPS access"
       from_port   = 443
       to_port     = 443
       protocol    = "tcp"
-      cidr_blocks = ["0.0.0.0/0"]
+      cidr_blocks = local.my_ip_cidrs
     },
     {
       description = "HTTPS access"

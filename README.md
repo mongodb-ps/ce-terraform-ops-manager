@@ -91,6 +91,14 @@ The first Ops Manager user. This will be the Ops Manager admin.
 | `lastName`  | No       | Last name of the user. When not provided, derived from the local part of `email`: the part after the first `.`, or `Doe` when there is no `.`.                  |
 
 ### 3.2 Deploy Ops Manager
+
+> **Note on access control:** the security groups created by these scripts only allow inbound
+> access (SSH, HTTP/HTTPS, and the Ops Manager web ports 8080/8443) from the public IP of the
+> machine that runs `terraform apply`. The IP is resolved from `https://ifconfig.me/ip` at plan
+> time and applied as a `/32` CIDR. If your public IP changes, re-run `terraform apply` to update
+> the security group rules; no other source can reach the instances. Outbound traffic stays
+> unrestricted so the instances can download packages during initialization.
+
 #### AWS Credentials
 - Open AWS from company portal.
 - Click "Access keys"
